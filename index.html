@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BibleDove</title>
+<link href="style.css" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="root">
+<div class="title-bar">
+  <div class="title-bar-title">
+    <img src="logo.png" style="width: 12px; height: 12px; border-radius: 2px; border: 1px solid rgba(212, 168, 67, 0.25); display: inline-block; vertical-align: middle; margin-right: 4px;" />
+    <span>BibleDove <span style="font-size: 9px; padding: 1px 5px; border-radius: 4px; background: rgba(212,168,67,0.25); color: var(--gold); border: 1px solid rgba(212,168,67,0.35); font-weight: 700; margin-left: 5px;">v1.0.2 🕊️</span></span>
+  </div>
+  <div class="title-bar-controls">
+    <button class="title-btn" id="win-min-btn" title="Minimize"><i data-lucide="minus" style="width: 10px; height: 10px;"></i></button>
+    <button class="title-btn" id="win-max-btn" title="Maximize"><i data-lucide="square" style="width: 10px; height: 10px;"></i></button>
+    <button class="title-btn close-btn" id="win-close-btn" title="Close"><i data-lucide="x" style="width: 10px; height: 10px;"></i></button>
+  </div>
+</div>
+<div class="compact-tab compact-only"></div>
+
+<header>
+  <div class="logo">
+
+    
+    <!-- Normal Mode logo -->
+    <div class="logo-normal" style="display: flex; align-items: center; gap: 11px;">
+      <img src="logo.png" style="width: 26px; height: 26px; border-radius: 6px; border: 1px solid rgba(212, 168, 67, 0.35); box-shadow: 0 0 10px rgba(107, 77, 176, 0.4);" />
+      <div>
+        <div class="logo-title">BibleDove</div>
+        <div class="logo-sub">Voice · Auto-Search · v1.0.2</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="header-right">
+    <!-- Compact inline search input -->
+    <div id="header-search-wrap" class="header-search-wrap compact-only">
+      <input type="text" id="header-search-input" placeholder="Search scripture... (F5)" />
+    </div>
+    
+    <!-- Compact microphone quick-toggle -->
+    <button id="header-mic-toggle-btn" class="header-btn compact-only" title="Toggle Listening"><i data-lucide="mic" style="width: 11px; height: 11px;"></i></button>
+    
+    <button id="view-mode-btn" class="pin-btn" title="Switch to Stack view"><i id="view-mode-icon" data-lucide="layers" style="width: 11px; height: 11px;"></i></button>
+    <button id="size-toggle-btn" class="pin-btn" title="Toggle Compact Size"><i id="size-toggle-icon" data-lucide="minimize-2" style="width: 11px; height: 11px;"></i></button>
+    <button id="pin-btn" class="pin-btn" title="Toggle Stay on Top"><i data-lucide="pin" style="width: 11px; height: 11px;"></i></button>
+    <button id="update-btn" class="pin-btn" title="Check for Updates"><i data-lucide="sparkles" style="width: 11px; height: 11px;"></i></button>
+    <div id="status-badge"><div class="badge-dot" id="bdot"></div><span id="btext">Idle</span></div>
+    
+    <div class="version-wrap">
+      <select id="version-select">
+        <option value="KJV" selected>KJV</option>
+        <option value="NIV">NIV</option>
+        <option value="ESV">ESV</option>
+        <option value="NKJV">NKJV</option>
+        <option value="NLT">NLT</option>
+        <option value="AMP">AMP</option>
+        <option value="NASB">NASB</option>
+        <option value="MSG">MSG</option>
+        <option value="CSB">CSB</option>
+        <option value="RSV">RSV</option>
+        <option value="ASV">ASV</option>
+        <option value="YLT">YLT</option>
+        <option value="WEB">WEB</option>
+        <option value="BBE">BBE</option>
+      </select>
+      <div class="version-arrow">▾</div>
+    </div>
+  </div>
+</header>
+
+<div class="body-wrap">
+  <div class="left-col">
+    <!-- Orb section -->
+    <div class="orb-section">
+      <div class="orb-wrap" id="orb-wrap">
+        <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+        <button class="orb-btn" id="orb-btn"><i id="orb-icon" data-lucide="mic" style="width: 18px; height: 18px; color: var(--gold);"></i></button>
+      </div>
+      <div class="orb-details">
+        <div class="orb-hint" id="orb-hint">Tap to begin listening</div>
+        <div id="wave"><!-- bars via JS --></div>
+      </div>
+    </div>
+
+    <!-- Compact manual search section -->
+    <div class="search-section">
+      <div class="search-input-wrap">
+        <input type="text" class="search-input" id="search-input" placeholder="Search John 3:16 or 'love your neighbor'... (F5)" />
+        <button class="search-btn" id="search-btn"><i data-lucide="search" style="width: 14px; height: 14px;"></i></button>
+      </div>
+    </div>
+
+    <!-- Word Count tracker -->
+    <div class="wc-row">
+      <span class="wc-lbl">Words</span>
+      <div class="wc-track"><div id="wc-fill"></div></div>
+      <span id="wc-count">0 / 12</span>
+    </div>
+  </div>
+  
+  <div class="right-col">
+    <!-- Tab row -->
+    <div class="tabs-row">
+      <button id="tab-results" class="tab-btn active">Matches</button>
+      <button id="tab-transcript" class="tab-btn">Transcript</button>
+      <button id="tab-notes" class="tab-btn">Sermon Notes</button>
+    </div>
+
+    <!-- Scripture Results tab content -->
+    <div id="results-tab-content" class="tab-pane active">
+      <div class="results-head">
+        <div class="results-title">Matches</div>
+        <div class="rh-right">
+          <span id="search-chip">—</span>
+          <button class="clear-btn" id="clear-btn">Clear</button>
+        </div>
+      </div>
+      <!-- Pending badge: visible while hovering & cards are queued -->
+      <div id="pending-badge" onclick="flushPendingCards(true)">
+        <div class="pb-dot"></div>
+        <span id="pending-count">0</span> new result<span id="pending-plural">s</span> waiting — click or move mouse away to show
+      </div>
+      <div id="results-wrapper">
+        <!-- Stack view renders here instead of #results: the active verse with
+             its neighbours in the chapter, walkable a verse at a time. -->
+        <div id="stack-deck">
+          <div class="stack-empty" id="stack-empty">
+            <div class="empty-t">Awaiting the Word</div>
+            <div class="empty-s">Search or speak a verse — its neighbours appear above and below.</div>
+          </div>
+        </div>
+        <div id="results">
+          <div class="empty" id="empty">
+            <div class="empty-icon"><i data-lucide="book-open" style="width: 32px; height: 32px; color: var(--gold-dim); opacity: 0.5;"></i></div>
+            <div class="empty-t">Awaiting the Word</div>
+            <div class="empty-s">Results will be shown here -- live transcript in the bridge.html</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Transcript tab content -->
+    <div id="transcript-tab-content" class="tab-pane">
+      <div id="transcript"><span class="t-interim">Awaiting voice input…</span></div>
+    </div>
+
+    <!-- Sermon Notes tab content -->
+    <div id="notes-tab-content" class="tab-pane">
+      <div class="notes-panel">
+        <div class="notes-fields-row">
+          <div class="notes-field">
+            <label class="notes-label">Sermon Title</label>
+            <input type="text" id="note-title" class="notes-input" placeholder="e.g. The Power of Grace" />
+          </div>
+          <div class="notes-field">
+            <label class="notes-label">Preacher</label>
+            <input type="text" id="note-preacher" class="notes-input" placeholder="e.g. Pastor John" />
+          </div>
+        </div>
+        <div class="notes-field notes-field--grow">
+          <label class="notes-label">Custom Sermon Notes</label>
+          <textarea id="note-custom" class="notes-textarea" placeholder="Type key takeaways, prayer requests, or personal notes here during the sermon..."></textarea>
+        </div>
+        <div class="notes-actions">
+          <button id="btn-ai-notes" class="notes-btn notes-btn--outline" style="border-color:var(--purple2); color:var(--purple2);">
+            <i data-lucide="sparkles" style="width:13px; height:13px;"></i> AI Summarize
+          </button>
+          <button id="btn-copy-notes" class="notes-btn notes-btn--outline">
+            <i data-lucide="copy" style="width:13px; height:13px;"></i> Copy Sermon Summary
+          </button>
+          <button id="btn-export-notes" class="notes-btn notes-btn--filled">
+            <i data-lucide="download" style="width:13px; height:13px;"></i> Download Notes (.md)
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div id="last-q">No search yet</div>
+  <div class="foot-hint" id="app-version-badge" style="cursor: pointer; display: flex; align-items: center; gap: 5px;" title="Check for updates">
+    <span>BibleDove v1.0.0</span>
+    <i data-lucide="refresh-cw" style="width: 10px; height: 10px; opacity: 0.6;"></i>
+  </div>
+</footer>
+</div> <!-- /#root -->
+<div id="toast"></div>
+
+<!-- Modal for Chrome Voice Bridge -->
+<div id="bridge-modal" class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-icon-wrap">
+      <i data-lucide="mic" style="width: 48px; height: 48px; color: var(--gold);"></i>
+    </div>
+    <h3 class="modal-title">Chrome Voice Bridge</h3>
+    <p class="modal-body">
+      Google restricts direct speech recognition inside Electron container environments.
+    </p>
+    <p class="modal-body modal-body--accent">
+      To enable premium real-time voice search, click the button below to open a voice bridge helper tab in Google Chrome! It streams your transcription back to this app instantly as you speak.
+    </p>
+    <div class="modal-actions">
+      <button id="close-bridge-modal" class="modal-btn modal-btn--ghost">Cancel</button>
+      <button id="launch-bridge-btn" class="modal-btn modal-btn--primary">Open Chrome Bridge</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for BibleDove Auto-Updater -->
+<div id="update-modal" class="modal-backdrop">
+  <div class="modal-card" style="max-width: 440px;">
+    <div class="modal-icon-wrap" id="update-icon-wrap">
+      <i data-lucide="sparkles" style="width: 44px; height: 44px; color: var(--gold);"></i>
+    </div>
+    <h3 class="modal-title" id="update-modal-title">BibleDove Update</h3>
+    <div id="update-status-desc" class="modal-body">
+      Checking for updates...
+    </div>
+
+    <!-- Release notes box -->
+    <div id="update-notes-box" style="display: none; max-height: 130px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.35); border: 1px solid var(--border2); border-radius: 9px; padding: 12px; margin: 12px 0; font-size: 12px; color: var(--text-dim); line-height: 1.6;"></div>
+
+    <!-- Progress bar -->
+    <div id="update-progress-container" style="display: none; margin: 16px 0;">
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--gold); margin-bottom: 6px; font-weight: 600;">
+        <span id="update-progress-text">Downloading update...</span>
+        <span id="update-progress-pct">0%</span>
+      </div>
+      <div style="background: rgba(255,255,255,0.08); border-radius: 8px; height: 9px; overflow: hidden; border: 1px solid rgba(212,168,67,0.25);">
+        <div id="update-progress-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #9b7de0, var(--gold)); transition: width 0.15s ease;"></div>
+      </div>
+      <div id="update-speed-text" style="font-size: 10.5px; color: var(--text-dim); margin-top: 6px; text-align: right;"></div>
+    </div>
+
+    <!-- Settings box -->
+    <div id="update-settings-box" style="display: none; text-align: left; background: rgba(14,10,28,0.7); border: 1px solid var(--border2); border-radius: 9px; padding: 14px; margin: 12px 0;">
+      <div style="font-size: 10.5px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Update Channel / GitHub Repo</div>
+      <input type="text" id="update-repo-input" placeholder="LucidTech/BibleDove" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; font-size: 12px; color: #ede5d0; box-sizing: border-box; margin-bottom: 10px; outline: none;" />
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-dim); cursor: pointer;">
+        <input type="checkbox" id="update-auto-check" checked style="accent-color: var(--gold);" />
+        <span>Check for updates automatically on launch</span>
+      </label>
+    </div>
+
+    <div class="modal-actions" id="update-modal-actions">
+      <button id="close-update-modal" class="modal-btn modal-btn--ghost">Close</button>
+      <button id="update-settings-toggle-btn" class="modal-btn modal-btn--ghost" title="Update Settings"><i data-lucide="settings" style="width: 13px; height: 13px;"></i></button>
+      <button id="action-update-btn" class="modal-btn modal-btn--primary">Check Now</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Expose unhandled renderer errors to console so Electron main processes can see them
+window.onerror = function (message, source, lineno, colno, error) {
+  console.error("RENDERER UNHANDLED ERROR:", message, "at", source, ":", lineno, ":", colno, error ? error.stack : '');
+  return false;
+};
+window.addEventListener('unhandledrejection', function (event) {
+  console.error("RENDERER UNHANDLED REJECTION:", event.reason ? (event.reason.stack || event.reason) : event);
+});
+
+// ═══════════════════════════════
+//  CONFIG
+// ═══════════════════════════════
+const WORDS_PER_SEARCH = 12;
+
+// CORS proxies tried in order (only used as fallback in Electron)
+const PROXIES = [
+  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://thingproxy.freeboard.io/fetch/${u}`,
+];
+
+// ═══════════════════════════════
+//  DOM
+// ═══════════════════════════════
+const $ = id => document.getElementById(id);
+const orbBtn     = $('orb-btn');
+const orbHint    = $('orb-hint');
+const orbWrapEl  = $('orb-wrap');
+const waveEl     = $('wave');
+const wcFill     = $('wc-fill');
+const wcCount    = $('wc-count');
+const transcriptEl = $('transcript');
+const resultsEl  = $('results');
+const emptyEl    = $('empty');
+const statusBadge= $('status-badge');
+const bdot       = $('bdot');
+const btext      = $('btext');
+const versionSel = $('version-select');
+const clearBtn   = $('clear-btn');
+const searchChip = $('search-chip');
+const lastQEl    = $('last-q');
+const toastEl    = $('toast');
+const searchInput = $('search-input');
+const searchBtnEl = $('search-btn');
+const pinBtn     = $('pin-btn');
+const tabResults = $('tab-results');
+const tabTranscript = $('tab-transcript');
+const tabNotes = $('tab-notes');
+const resultsTabContent = $('results-tab-content');
+const transcriptTabContent = $('transcript-tab-content');
+const notesTabContent = $('notes-tab-content');
+
+const noteTitle = $('note-title');
+const notePreacher = $('note-preacher');
+const noteCustom = $('note-custom');
+const btnAiNotes = $('btn-ai-notes');
+const btnCopyNotes = $('btn-copy-notes');
+const btnExportNotes = $('btn-export-notes');
+
+
+const VERSION_FULL_NAMES = {
+  'KJV': 'King James Version',
+  'NIV': 'New International Version',
+  'ESV': 'English Standard Version',
+  'NKJV': 'New King James Version',
+  'NLT': 'New Living Translation',
+  'AMP': 'Amplified Bible',
+  'NASB': 'New American Standard Bible',
+  'MSG': 'The Message',
+  'CSB': 'Christian Standard Bible',
+  'RSV': 'Revised Standard Version',
+  'ASV': 'American Standard Version',
+  'YLT': 'Young\'s Literal Translation',
+  'WEB': 'World English Bible',
+  'BBE': 'Bible in Basic English'
+};
+
+const BOOK_MAP = {
+  'genesis': 'Genesis', 'gen': 'Genesis',
+  'exodus': 'Exodus', 'ex': 'Exodus',
+  'leviticus': 'Leviticus', 'lev': 'Leviticus',
+  'numbers': 'Numbers', 'num': 'Numbers',
+  'deuteronomy': 'Deuteronomy', 'deut': 'Deuteronomy',
+  'joshua': 'Joshua', 'josh': 'Joshua',
+  'judges': 'Judges', 'judg': 'Judges',
+  'ruth': 'Ruth',
+  '1 samuel': '1 Samuel', '1 sam': '1 Samuel',
+  '2 samuel': '2 Samuel', '2 sam': '2 Samuel',
+  '1 kings': '1 Kings', '2 kings': '2 Kings',
+  '1 chronicles': '1 Chronicles', '1 chr': '1 Chronicles', '1 chron': '1 Chronicles',
+  '2 chronicles': '2 Chronicles', '2 chr': '2 Chronicles', '2 chron': '2 Chronicles',
+  'ezra': 'Ezra',
+  'nehemiah': 'Nehemiah', 'neh': 'Nehemiah',
+  'esther': 'Esther', 'esth': 'Esther',
+  'job': 'Job',
+  'psalms': 'Psalms', 'psalm': 'Psalms', 'psa': 'Psalms',
+  'proverbs': 'Proverbs', 'prov': 'Proverbs',
+  'ecclesiastes': 'Ecclesiastes', 'eccl': 'Ecclesiastes',
+  'song of solomon': 'Song of Solomon', 'song of songs': 'Song of Solomon', 'song of song': 'Song of Solomon', 'song': 'Song of Solomon',
+  'isaiah': 'Isaiah', 'isa': 'Isaiah',
+  'jeremiah': 'Jeremiah', 'jer': 'Jeremiah',
+  'lamentations': 'Lamentations', 'lam': 'Lamentations',
+  'ezekiel': 'Ezekiel', 'ezek': 'Ezekiel',
+  'daniel': 'Daniel', 'dan': 'Daniel',
+  'hosea': 'Hosea', 'hos': 'Hosea',
+  'joel': 'Joel',
+  'amos': 'Amos',
+  'obadiah': 'Obadiah', 'obad': 'Obadiah',
+  'jonah': 'Jonah',
+  'micah': 'Micah', 'mic': 'Micah',
+  'nahum': 'Nahum', 'nah': 'Nahum',
+  'habakkuk': 'Habakkuk', 'hab': 'Habakkuk',
+  'zephaniah': 'Zephaniah', 'zeph': 'Zephaniah',
+  'haggai': 'Haggai', 'hag': 'Haggai',
+  'zechariah': 'Zechariah', 'zech': 'Zechariah',
+  'malachi': 'Malachi', 'mal': 'Malachi',
+  'matthew': 'Matthew', 'matt': 'Matthew',
+  'mark': 'Mark',
+  'luke': 'Luke',
+  'john': 'John',
+  'acts': 'Acts',
+  'romans': 'Romans', 'rom': 'Romans',
+  '1 corinthians': '1 Corinthians', '1 cor': '1 Corinthians',
+  '2 corinthians': '2 Corinthians', '2 cor': '2 Corinthians',
+  'galatians': 'Galatians', 'gal': 'Galatians',
+  'ephesians': 'Ephesians', 'eph': 'Ephesians',
+  'philippians': 'Philippians', 'phil': 'Philippians',
+  'colossians': 'Colossians', 'col': 'Colossians',
+  '1 thessalonians': '1 Thessalonians', '1 thess': '1 Thessalonians',
+  '2 thessalonians': '2 Thessalonians', '2 thess': '2 Thessalonians',
+  '1 timothy': '1 Timothy', '1 tim': '1 Timothy',
+  '2 timothy': '2 Timothy', '2 tim': '2 Timothy',
+  'titus': 'Titus',
+  'philemon': 'Philemon', 'philem': 'Philemon',
+  'hebrews': 'Hebrews', 'heb': 'Hebrews',
+  'james': 'James', 'jas': 'James',
+  '1 peter': '1 Peter', '1 pet': '1 Peter',
+  '2 peter': '2 Peter', '2 pet': '2 Peter',
+  '1 john': '1 John',
+  '2 john': '2 John',
+  '3 john': '3 John',
+  'jude': 'Jude',
+  'revelation': 'Revelation', 'rev': 'Revelation'
+};
+
+function sanitizeSearchPhrase(phrase) {
+  if (!phrase) return '';
+  phrase = phrase.trim();
+
+  const BOOKS_LIST = [
+    'Song of Solomon', 'Song of Songs', 'Song of Song', 'Ecclesiastes', 'Lamentations',
+    'Philippians', 'Thessalonians', 'Corinthians', 'Deuteronomy', 'Chronicles',
+    'Leviticus', 'Habakkuk', 'Zephaniah', 'Zechariah', 'Revelation', 'Genesis',
+    'Exodus', 'Numbers', 'Joshua', 'Judges', 'Nehemiah', 'Esther', 'Proverbs',
+    'Jeremiah', 'Ezekiel', 'Obadiah', 'Malachi', 'Matthew', 'Galatians',
+    'Ephesians', 'Colossians', 'Timothy', 'Philemon', 'Hebrews', 'Romans',
+    'Samuel', 'Kings', 'Psalms', 'Daniel', 'Hosea', 'Micah', 'Nahum',
+    'Haggai', 'Titus', 'James', 'Peter', 'Jude', 'Psalm', 'Acts', 'Luke',
+    'Mark', 'John', 'Ruth', 'Ezra', 'Neh', 'Gen', 'Ex', 'Lev', 'Num', 'Deut',
+    'Josh', 'Judg', 'Sam', 'Chr', 'Esth', 'Job', 'Psa', 'Prov', 'Eccl', 'Song',
+    'Isa', 'Jer', 'Lam', 'Ezek', 'Dan', 'Hos', 'Obad', 'Mic', 'Nah', 'Hab',
+    'Zeph', 'Hag', 'Zech', 'Mal', 'Matt', 'Rom', 'Cor', 'Gal', 'Eph', 'Phil',
+    'Col', 'Tim', 'Heb', 'Jas', 'Pet', 'Rev'
+  ];
+
+  const PREFIX_BOOKS = [
+    'samuel', 'sam', 'kings', 'chronicles', 'chron', 'chr',
+    'corinthians', 'cor', 'thessalonians', 'thess', 'timothy', 'tim',
+    'peter', 'pet', 'john'
+  ];
+
+  const shiftMap = {
+    '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
+    '^': '6', '&': '7', '*': '8', '(': '9', ')': '0'
+  };
+
+  for (const book of BOOKS_LIST) {
+    const escapedBook = book.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`^([\\d!@#$%^&*()I|V\\s]*)(?:${escapedBook})\\b(.*)$`, 'i');
+    const match = phrase.match(regex);
+    if (match) {
+      let prefix = match[1].trim();
+      const matchedBook = book;
+      let suffix = match[2].trim();
+
+      const suffixRefRegex = /^[0-9!@#$%^&*()]+\s*[:\s-]\s*[0-9!@#$%^&*()]+(?:\s*[-–]\s*[0-9!@#$%^&*()]+)?$/;
+      if (suffixRefRegex.test(suffix)) {
+        let cleanSuffix = suffix.split('').map(char => shiftMap[char] || char).join('');
+        cleanSuffix = cleanSuffix.replace(/^(\d+)\s+(\d+)/, '$1:$2');
+        cleanSuffix = cleanSuffix.replace(/\s*:\s*/g, ':').replace(/\s*[-–]\s*/g, '-');
+
+        let cleanPrefix = '';
+        const isPrefixBook = PREFIX_BOOKS.includes(matchedBook.toLowerCase());
+        if (isPrefixBook && prefix) {
+          const cleanedPrefixDigits = prefix.split('').map(char => shiftMap[char] || char).join('');
+          const prefixMatch = cleanedPrefixDigits.match(/(?:[123]|I{1,3})/i);
+          if (prefixMatch) {
+            cleanPrefix = prefixMatch[0].toUpperCase() + ' ';
+          }
+        }
+
+        const lookupKey = (cleanPrefix ? cleanPrefix.trim() + ' ' : '') + matchedBook;
+        const resolvedBook = BOOK_MAP[lookupKey.toLowerCase()] || lookupKey;
+
+        return `${resolvedBook} ${cleanSuffix}`;
+      }
+    }
+  }
+
+  return phrase;
+}
+
+// ═══════════════════════════════
+//  VISUALIZER SETUP
+// ═══════════════════════════════
+const BAR_N = 30;
+for (let i = 0; i < BAR_N; i++) {
+  const b = document.createElement('div');
+  b.className = 'wbar'; waveEl.appendChild(b);
+}
+const waveBars = [...waveEl.querySelectorAll('.wbar')];
+
+let audioCtx, analyser, dataArray, micStream, rafId;
+
+async function startAudio() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser(); analyser.fftSize = 64;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStream = stream;
+    audioCtx.createMediaStreamSource(stream).connect(analyser);
+    animWave(); return stream;
+  } catch(e) { showToast('Mic error: ' + e.message); return null; }
+}
+
+function animWave() {
+  rafId = requestAnimationFrame(animWave);
+  analyser.getByteFrequencyData(dataArray);
+  waveBars.forEach((b, i) => {
+    const v = dataArray[i % dataArray.length];
+    b.style.height = (4 + (v / 255) * 34) + 'px';
+  });
+}
+
+function stopAudio() {
+  cancelAnimationFrame(rafId);
+  micStream?.getTracks().forEach(t => t.stop());
+  audioCtx?.close();
+  waveBars.forEach(b => b.style.height = '4px');
+}
+
+// ═══════════════════════════════
+//  STATE
+// ═══════════════════════════════
+let isOn = false;
+let recognition = null;
+let finalText   = '';
+let plainTranscript = '';
+let searchedWordCount = 0;
+let interimText   = '';
+let sermonScriptures = [];
+
+const THEOLOGICAL_KEYWORDS = [
+  'grace', 'faith', 'salvation', 'repent', 'repentance', 'jesus', 'christ', 'cross', 'covenant', 
+  'pray', 'prayer', 'spirit', 'holy', 'glory', 'gospel', 'mercy', 'kingdom', 'righteous', 
+  'righteousness', 'sin', 'sins', 'sinful', 'love', 'loved', 'loves', 'lord', 'god', 'bible',
+  'scripture', 'scriptures', 'bless', 'blessed', 'blessing', 'faithfulness', 'redeem', 'redeemed',
+  'redemption', 'hope', 'peace', 'truth'
+];
+
+function highlightKeywords(htmlStr) {
+  if (!htmlStr) return "";
+  const pattern = new RegExp(`(?<!<[^>]*)\\b(${THEOLOGICAL_KEYWORDS.join('|')})\\b(?![^<]*>)`, 'gi');
+  return htmlStr.replace(pattern, '<span class="t-keyword">$1</span>');
+}
+
+// ═══════════════════════════════
+//  STATUS
+// ═══════════════════════════════
+function setStatus(s) {
+  statusBadge.className = s;
+  bdot.className = 'badge-dot' + (s !== 'idle' ? ' pulse' : '');
+  btext.textContent = { idle:'Idle', active:'Listening', searching:'Searching…' }[s] || s;
+}
+
+// ═══════════════════════════════
+//  WORD COUNTER
+// ═══════════════════════════════
+function updateWC(n) {
+  const pct = Math.min((n / WORDS_PER_SEARCH) * 100, 100);
+  wcFill.style.width = pct + '%';
+  wcCount.textContent = `${Math.min(n, WORDS_PER_SEARCH)} / ${WORDS_PER_SEARCH}`;
+}
+
+// ═══════════════════════════════
+//  TRANSCRIPT
+// ═══════════════════════════════
+function renderTranscript(interim) {
+  const finalHighlighted = highlightKeywords(finalText);
+  const interimHighlighted = interim ? highlightKeywords(interim) : '';
+  transcriptEl.innerHTML =
+    `<span class="t-final">${finalHighlighted}</span>` +
+    (interim ? `<span class="t-interim"> ${interimHighlighted}</span>` : '');
+  transcriptEl.scrollTop = transcriptEl.scrollHeight;
+}
+
+function markChunk(phrase) {
+  const esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  finalText = finalText.replace(
+    new RegExp(`(${esc})`, 'i'),
+    `<span class="t-chunk" onclick="reSearch('${phrase.replace(/'/g,"\\'")}')">$1</span>`
+  );
+  renderTranscript();
+}
+
+// ═══════════════════════════════
+//  SPEECH RECOGNITION (VIA CHROME VOICE BRIDGE)
+// ═══════════════════════════════
+let bridgeConnected = false;
+
+window.api.onVoiceBridgeState((state) => {
+  bridgeConnected = state.connected;
+  if (bridgeConnected) {
+    isOn = true;
+    orbBtn.classList.add('on');
+    const orbIcon = document.getElementById('orb-icon');
+    if (orbIcon) { orbIcon.setAttribute('data-lucide', 'mic'); lucide.createIcons(); }
+    orbHint.textContent = 'Voice Bridge active — speak into Chrome tab';
+    orbWrapEl.querySelectorAll('.ring').forEach(r => r.classList.add('hot'));
+    waveEl.classList.add('on');
+    setStatus('active');
+    searchedWordCount = 0; finalText = ''; plainTranscript = ''; interimText = '';
+    updateWC(0);
+    transcriptEl.innerHTML = '';
+    showToast('Voice Bridge connected! Start speaking.');
+    document.getElementById('bridge-modal').style.display = 'none';
+  } else {
+    isOn = false;
+    stopAudio();
+    orbBtn.classList.remove('on');
+    const orbIcon = document.getElementById('orb-icon');
+    if (orbIcon) { orbIcon.setAttribute('data-lucide', 'mic-off'); lucide.createIcons(); }
+    orbHint.textContent = 'Tap to begin listening';
+    orbWrapEl.querySelectorAll('.ring').forEach(r => r.classList.remove('hot'));
+    waveEl.classList.remove('on');
+    setStatus('idle'); updateWC(0);
+    searchedWordCount = 0; finalText = ''; plainTranscript = ''; interimText = '';
+    showToast('Voice Bridge disconnected.');
+  }
+});
+
+let searchTimeout = null;
+
+window.api.onVoiceBridgeTranscript((msg) => {
+  if (searchTimeout) clearTimeout(searchTimeout);
+
+  if (msg.type === 'final') {
+    const text = msg.text.trim();
+    if (text) {
+      finalText += (finalText ? ' ' : '') + text;
+      plainTranscript += (plainTranscript ? ' ' : '') + text;
+    }
+    interimText = '';
+  } else if (msg.type === 'interim') {
+    interimText = msg.text.trim();
+  }
+
+  // Calculate full text and get all words using pure plain text plainTranscript (prevents HTML tag split noise)
+  const fullText = (plainTranscript ? plainTranscript + ' ' : '') + interimText;
+  const words = fullText.split(/\s+/).filter(Boolean);
+
+  // 1. Process all full groups of 12 words immediately
+  while (words.length - searchedWordCount >= WORDS_PER_SEARCH) {
+    const chunk = words.slice(searchedWordCount, searchedWordCount + WORDS_PER_SEARCH).join(' ');
+    doSearch(chunk);
+    searchedWordCount += WORDS_PER_SEARCH;
+  }
+
+  // Update visual indicators
+  updateWC(words.length - searchedWordCount);
+  renderTranscript(interimText);
+
+  // Bounce visualizer bars briefly on receipt of voice input
+  waveBars.forEach(b => {
+    b.style.height = (4 + Math.random() * (msg.type === 'final' ? 34 : 20)) + 'px';
+  });
+  setTimeout(() => {
+    if (isOn) {
+      waveBars.forEach(b => b.style.height = '4px');
+    }
+  }, 200);
+
+  // 2. If there are leftover words, search them after a 1.5-second pause
+  const leftoverCount = words.length - searchedWordCount;
+  if (leftoverCount > 0) {
+    searchTimeout = setTimeout(() => {
+      const remainingWords = words.slice(searchedWordCount);
+      const chunk = remainingWords.join(' ');
+      if (chunk.trim().length > 2) {
+        doSearch(chunk);
+        searchedWordCount += remainingWords.length;
+        updateWC(0);
+      }
+    }, 1500);
+  }
+});
+
+//  GOOGLE SEARCH + PARSE
+// ═══════════════════════════════
+const searched = new Set();
+
+function googleUrl(phrase, version) {
+  const q = `${phrase} ${version}`;
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}&sourceid=chrome&ie=UTF-8`;
+}
+
+async function proxyFetch(targetUrl, idx = 0) {
+  // Try direct fetch first (works perfectly in Electron due to main process CORS headers strip)
+  if (idx === 0) {
+    try {
+      console.log("DEBUG: Direct fetching URL:", targetUrl);
+      const res = await fetch(targetUrl);
+      console.log("DEBUG: Direct fetch status:", res.status, "ok:", res.ok);
+      if (res.ok) {
+        const text = await res.text();
+        console.log("DEBUG: Direct fetch successful! HTML length:", text.length);
+        return text;
+      }
+    } catch (e) {
+      console.warn("Direct fetch failed or CORS blocked, falling back to proxies...", e);
+    }
+  }
+
+  const pIdx = idx === 0 ? 0 : idx - 1;
+  if (pIdx >= PROXIES.length) throw new Error('All CORS proxies exhausted');
+  try {
+    const pUrl = PROXIES[pIdx](targetUrl);
+    console.log(`DEBUG: Trying proxy ${pIdx}:`, pUrl);
+    const res  = await fetch(pUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    console.log(`DEBUG: Proxy ${pIdx} fetch status:`, res.status);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const contents = typeof data === 'string' ? data : (data.contents || JSON.stringify(data));
+    console.log(`DEBUG: Proxy ${pIdx} returned contents length:`, contents.length);
+    return contents;
+  } catch(err) {
+    console.warn(`Proxy ${pIdx} failed:`, err.message);
+    return proxyFetch(targetUrl, idx + 1);
+  }
+}
+
+function getCleanTitleText(titleEl) {
+  if (!titleEl) return '';
+  const clone = titleEl.cloneNode(true);
+  const selectorsToRemove = [
+    'cite', 'span.cite', 'span.url', '.cite', '.url', 
+    '.breadcrumb', '.breadcrumbs', 'span[class*="url"]', 
+    'span[class*="cite"]', 'span[class*="breadcrumb"]',
+    '.ch', '.G2g2Ke', '.qLRx3b'
+  ];
+  selectorsToRemove.forEach(sel => {
+    try {
+      clone.querySelectorAll(sel).forEach(el => el.remove());
+    } catch (e) {}
+  });
+  let text = clone.textContent || '';
+  text = text.replace(/https?:\/\/[^\s]+/gi, '');
+  if (text.includes('›')) {
+    const parts = text.split('›');
+    text = parts[parts.length - 1].trim();
+  }
+  if (text.includes('»')) {
+    const parts = text.split('»');
+    text = parts[parts.length - 1].trim();
+  }
+  return text.replace(/\s+/g, ' ').trim();
+}
+
+function parseScripture(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  
+  // Clean up inline styles, scripts, footers, headers, navs, suggestions to avoid noise
+  doc.querySelectorAll('script, style, noscript, header, footer, nav, #header, #footer, #nav, .nav, #sidebar, .sidebar, #gb, #topbar, .suggestions, #suggestions').forEach(el => el.remove());
+  
+  const results = [];
+  const seen = new Set();
+
+  // 1. EXTRACT STRUCTURED SEARCH RESULTS (Google, Yahoo, & DuckDuckGo selectors) first!
+  // DuckDuckGo static HTML selectors
+  const ddgItems = doc.querySelectorAll('#links .result, .result');
+  if (ddgItems && ddgItems.length > 0) {
+    ddgItems.forEach(item => {
+      const titleEl = item.querySelector('.result__a');
+      const snippetEl = item.querySelector('.result__snippet');
+      if (titleEl && snippetEl) {
+        let title = getCleanTitleText(titleEl);
+        let snippet = snippetEl.textContent.trim();
+        if (title && snippet && !title.toLowerCase().includes('all regions') && !title.toLowerCase().includes('google result')) {
+          title = title.replace(/\s+/g, ' ').trim();
+          snippet = snippet.replace(/\s+/g, ' ').trim();
+          
+          const uniqKey = title.toLowerCase() + '|' + snippet.slice(0, 20).toLowerCase();
+          if (!seen.has(uniqKey)) {
+            seen.add(uniqKey);
+            results.push({ ref: title, text: snippet });
+          }
+        }
+      }
+    });
+  }
+
+  // DuckDuckGo Lite selectors fallbacks
+  const ddgLiteLinks = doc.querySelectorAll('td.result-link a, .result-link a, a.result-link, tr.result-title a');
+  if (ddgLiteLinks && ddgLiteLinks.length > 0) {
+    ddgLiteLinks.forEach(link => {
+      const title = getCleanTitleText(link);
+      const row = link.closest('tr');
+      if (row) {
+        let snippetRow = row.nextElementSibling;
+        while (snippetRow && snippetRow.textContent.trim().length < 15 && !snippetRow.classList.contains('result-snippet')) {
+          snippetRow = snippetRow.nextElementSibling;
+        }
+        if (snippetRow) {
+          const snippet = snippetRow.textContent.trim();
+          if (title && snippet && !title.toLowerCase().includes('all regions') && !title.toLowerCase().includes('google result')) {
+            const cleanTitle = title.replace(/\s+/g, ' ').trim();
+            const cleanSnippet = snippet.replace(/\s+/g, ' ').trim();
+            const uniqKey = cleanTitle.toLowerCase() + '|' + cleanSnippet.slice(0, 20).toLowerCase();
+            if (!seen.has(uniqKey)) {
+              seen.add(uniqKey);
+              results.push({ ref: cleanTitle, text: cleanSnippet });
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Yahoo Search selectors fallback
+  const yahooItems = doc.querySelectorAll('.algo, .dd.algo, li.dd.algo');
+  if (yahooItems && yahooItems.length > 0) {
+    yahooItems.forEach(item => {
+      const a = item.querySelector('.compTitle a, h3 a, a');
+      const snippetEl = item.querySelector('.compText, .compText span, p, span');
+      if (a && snippetEl) {
+        const title = getCleanTitleText(a);
+        const snippet = snippetEl.textContent.trim();
+        if (title && snippet && !title.toLowerCase().includes('all regions') && !title.toLowerCase().includes('yahoo result')) {
+          const cleanTitle = title.replace(/\s+/g, ' ').trim();
+          const cleanSnippet = snippet.replace(/\s+/g, ' ').trim();
+          const uniqKey = cleanTitle.toLowerCase() + '|' + cleanSnippet.slice(0, 20).toLowerCase();
+          if (!seen.has(uniqKey)) {
+            seen.add(uniqKey);
+            results.push({ ref: cleanTitle, text: cleanSnippet });
+          }
+        }
+      }
+    });
+  }
+
+  // Google selectors
+  const googleItems = doc.querySelectorAll('.g, .kCrYT, div.ZIN8Cc, div.tF2Cxc');
+  if (googleItems && googleItems.length > 0) {
+    googleItems.forEach(item => {
+      const h3 = item.querySelector('h3, .BNeawe.vvjwfe');
+      const snippetEl = item.querySelector('.VwiC3d, .BNeawe.s3opZc, .s, .st');
+      if (h3) {
+        let title = getCleanTitleText(h3);
+        let snippet = snippetEl ? snippetEl.textContent.trim() : '';
+
+        if (!snippet) {
+          const textContainers = item.querySelectorAll('div, span');
+          let longest = '';
+          textContainers.forEach(el => {
+            const txt = el.textContent.trim();
+            if (txt.length > longest.length && !txt.includes(title)) {
+              longest = txt;
+            }
+          });
+          if (longest.length > 30) snippet = longest;
+        }
+
+        if (title && snippet && !title.toLowerCase().includes('all regions') && !title.toLowerCase().includes('google result')) {
+          title = title.replace(/\s+/g, ' ').trim();
+          snippet = snippet.replace(/\s+/g, ' ').trim();
+          
+          const uniqKey = title.toLowerCase() + '|' + snippet.slice(0, 20).toLowerCase();
+          if (!seen.has(uniqKey)) {
+            seen.add(uniqKey);
+            results.push({ ref: title, text: snippet });
+          }
+        }
+      }
+    });
+  }
+
+  // Generic fallback if structured selectors didn't match anything
+  if (results.length === 0) {
+    const h3s = doc.querySelectorAll('h3');
+    h3s.forEach(h3 => {
+      const parent = h3.parentElement;
+      if (parent) {
+        let sibling = parent.nextElementSibling || parent.parentElement?.nextElementSibling;
+        let snippetText = '';
+        if (sibling) {
+          snippetText = sibling.textContent.trim();
+        }
+        if (snippetText.length > 30) {
+          let title = getCleanTitleText(h3);
+          snippetText = snippetText.replace(/\s+/g, ' ').trim();
+          
+          if (!title.toLowerCase().includes('all regions') && !title.toLowerCase().includes('google result')) {
+            const uniqKey = title.toLowerCase() + '|' + snippetText.slice(0, 20).toLowerCase();
+            if (!seen.has(uniqKey)) {
+              seen.add(uniqKey);
+              results.push({ ref: title, text: snippetText });
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // 2. UNIVERSAL HEURISTIC SCRAPER (Run ONLY as a last-resort fallback)
+  if (results.length === 0) {
+    const links = doc.querySelectorAll('a');
+    links.forEach(link => {
+      const href = link.getAttribute('href') || '';
+      const text = getCleanTitleText(link);
+      
+      const isInternal = href.startsWith('/') || href.includes('duckduckgo.com/') || href.includes('google.com/');
+      const isRedir = href.includes('uddg=') || href.includes('url?q=');
+      
+      const lowercaseText = text.toLowerCase();
+      const isNoiseText = lowercaseText.length < 10 || 
+                          lowercaseText.includes('privacy') || 
+                          lowercaseText.includes('terms') || 
+                          lowercaseText.includes('about') || 
+                          lowercaseText.includes('settings') || 
+                          lowercaseText.includes('cookies') || 
+                          lowercaseText.includes('feedback') || 
+                          lowercaseText.includes('help') ||
+                          lowercaseText.includes('sign in') ||
+                          lowercaseText.includes('log in') ||
+                          lowercaseText.includes('suggestions');
+
+      if ((!isInternal || isRedir) && !isNoiseText && href.length > 5) {
+        const parent = link.closest('td') || link.closest('div') || link.closest('tr') || link.parentElement;
+        if (parent) {
+          let sibling = parent.nextElementSibling || parent.parentElement?.nextElementSibling;
+          let snippetText = '';
+          while (sibling && snippetText.length < 20) {
+            if (sibling.tagName !== 'SCRIPT' && sibling.tagName !== 'STYLE' && sibling.tagName !== 'NOSCRIPT') {
+              snippetText = sibling.textContent.replace(/\s+/g, ' ').trim();
+            }
+            sibling = sibling.nextElementSibling;
+          }
+          if (snippetText.length > 20 && !snippetText.includes('!function') && !snippetText.includes('var ')) {
+            const cleanTitle = text.replace(/\s+/g, ' ').trim();
+            const cleanSnippet = snippetText;
+            const uniqKey = cleanTitle.toLowerCase() + '|' + cleanSnippet.slice(0, 20).toLowerCase();
+            if (!seen.has(uniqKey)) {
+              seen.add(uniqKey);
+              results.push({ ref: cleanTitle, text: cleanSnippet });
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // 3. TEXT-BLOCK SCRIPTURE REGEX MATCHING (Double redundancy backup)
+  if (results.length === 0) {
+    const BOOKS = 'Genesis|Gen|Exodus|Ex|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Joshua|Josh|Judges|Judg|Ruth|' +
+      '(?:1|2)\\s*Samuel|(?:1|2)\\s*Sam|(?:1|2)\\s*Kings|(?:1|2)\\s*Chronicles|(?:1|2)\\s*Chr|(?:1|2)\\s*Chron|Ezra|Nehemiah|Neh|Esther|Esth|Job|' +
+      'Psalms?|Psa|Proverbs|Prov|Ecclesiastes|Eccl|Song\\s*of\\s*Songs?|Song\\s*of\\s*Solomon|Isaiah|Isa|Jeremiah|Jer|' +
+      'Lamentations|Lam|Ezekiel|Ezek|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Obad|Jonah|Micah|Mic|Nahum|Nah|Habakkuk|Hab|' +
+      'Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|Matthew|Matt|Mark|Luke|John|Acts|Romans|Rom|' +
+      '(?:1|2)\\s*Corinthians|(?:1|2)\\s*Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Colossians|Col|' +
+      '(?:1|2)\\s*Thessalonians|(?:1|2)\\s*Thess|(?:1|2)\\s*Timothy|(?:1|2)\\s*Tim|Titus|Philemon|Hebrews|Heb|James|Jas|' +
+      '(?:1|2|3)\\s*Peter|(?:1|2|3)\\s*Pet|(?:1|2|3)\\s*John|Jude|Revelation|Rev';
+
+    const refPat = new RegExp(
+      `((?:${BOOKS})\\s+\\d+:\\d+(?:\\s*[-–]\\s*\\d+)?)(?:(?:\\s+[A-Z]{2,6})?\\s*[-–—:]?\\s*)([^\\n]{15,350})`,
+      'gi'
+    );
+
+    const blocks = [];
+    doc.querySelectorAll('div, span, p, td, li, a').forEach(el => {
+      const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
+      if (txt.length >= 30 && txt.length <= 500 && !txt.toLowerCase().includes('all regions') && !txt.toLowerCase().includes('google result')) {
+        blocks.push(txt);
+      }
+    });
+
+    const rawBody = (doc.body?.textContent || '').replace(/\s+/g, ' ').trim();
+    blocks.push(rawBody);
+
+    for (let raw of blocks) {
+      raw = raw.replace(/&amp;/g, '&')
+               .replace(/&quot;/g, '"')
+               .replace(/&apos;/g, "'")
+               .replace(/&#39;/g, "'")
+               .replace(/&lt;/g, '<')
+               .replace(/&gt;/g, '>');
+
+      let m;
+      refPat.lastIndex = 0;
+      while ((m = refPat.exec(raw)) !== null) {
+        const ref  = m[1].trim();
+        let text = m[2].trim();
+        
+        text = text.replace(/^(?:NKJV|KJV|ESV|NIV|NASB|NLT|AMP|HCSB)\s*[-–—:]?\\s*/i, '');
+        text = text.replace(/\.{2,}/g, '...');
+        text = text.replace(/(?:Read more|Bible\s*Gateway|Bible\s*Hub|\.\.\.)/gi, '');
+        text = text.replace(/[-–|]\s*(?:passage|version|search|KJV|NKJV|ESV|NIV).*/gi, '');
+        
+        const urlIndex = text.search(/https?:\/\//i);
+        if (urlIndex !== -1) {
+          text = text.substring(0, urlIndex).trim();
+        }
+        
+        text = text.replace(/\s+/g, ' ').trim();
+        if (text.length < 15) continue;
+        if (text.length > 250) {
+          text = text.substring(0, 250) + "...";
+        }
+
+        const uniqKey = `${ref.toLowerCase()}|${text.slice(0, 30).toLowerCase()}`;
+        if (!seen.has(uniqKey)) {
+          seen.add(uniqKey);
+          results.push({ ref, text });
+        }
+        if (results.length >= 5) break;
+      }
+      if (results.length >= 5) break;
+    }
+  }
+
+  // Sanitization / Cleanup of all final results (titles and snippets)
+  results.forEach(res => {
+    // Clean up HTML entity codes that might remain
+    res.ref = res.ref.replace(/&amp;/g, '&')
+                     .replace(/&quot;/g, '"')
+                     .replace(/&apos;/g, "'")
+                     .replace(/&#39;/g, "'")
+                     .replace(/&lt;/g, '<')
+                     .replace(/&gt;/g, '>')
+                     .replace(/[-–|]\s*(?:passage|version|search|KJV|NKJV|ESV|NIV).*/gi, '')
+                     .replace(/\s+/g, ' ')
+                     .trim();
+
+    res.text = res.text.replace(/&amp;/g, '&')
+                       .replace(/&quot;/g, '"')
+                       .replace(/&apos;/g, "'")
+                       .replace(/&#39;/g, "'")
+                       .replace(/&lt;/g, '<')
+                       .replace(/&gt;/g, '>')
+                       .replace(/(?:Read more|Bible\s*Gateway|Bible\s*Hub|\.\.\.)/gi, '')
+                       .replace(/\s+/g, ' ')
+                       .trim();
+  });
+
+  return results;
+}
+function parseReference(refStr) {
+  const match = refStr.match(/^\s*(.+?)\s+(\d+)\s*:\s*(\d+)(?:\s*[-–]\s*(\d+))?\s*$/);
+  if (match) {
+    return {
+      book: match[1].trim(),
+      chapter: parseInt(match[2], 10),
+      verseStart: parseInt(match[3], 10),
+      verseEnd: match[4] ? parseInt(match[4], 10) : parseInt(match[3], 10)
+    };
+  }
+  // Chapter only — "Psalm 23", "Genesis 1". Search results often name a whole
+  // chapter rather than a verse, which used to fall through as "No result".
+  const chapMatch = refStr.match(/^\s*(.+?)\s+(\d+)\s*$/);
+  if (chapMatch) {
+    return {
+      book: chapMatch[1].trim(),
+      chapter: parseInt(chapMatch[2], 10),
+      verseStart: 1,
+      verseEnd: Infinity,
+      wholeChapter: true
+    };
+  }
+  return null;
+}
+
+function cleanBollsText(text) {
+  if (!text) return "";
+  let cleaned = text.replace(/<sup[^>]*>.*?<\/sup>/gi, "");
+  cleaned = cleaned.replace(/<S>\d+<\/S>/gi, "");
+  cleaned = cleaned.replace(/<[^>]+>/g, "");
+  cleaned = cleaned.replace(/\s+/g, " ");
+  return cleaned.trim();
+}
+
+async function fetchVerseText(reference, translation) {
+  const parsed = parseReference(reference);
+  if (!parsed) return null;
+
+  const unsupportedBolls = ["BBE", "CSB"];
+  if (!unsupportedBolls.includes(translation.toUpperCase())) {
+    try {
+      const url = `https://bolls.life/get-text/${translation}/${encodeURIComponent(parsed.book)}/${parsed.chapter}/`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const verses = await res.json();
+        if (Array.isArray(verses) && verses.length > 0) {
+          let matching = verses.filter(v => v.verse >= parsed.verseStart && v.verse <= parsed.verseEnd);
+          // A whole chapter would be a wall of text in this window, so show the
+          // opening verses and say so in the reference.
+          const CHAPTER_PREVIEW = 6;
+          let truncated = false;
+          if (parsed.wholeChapter && matching.length > CHAPTER_PREVIEW) {
+            matching = matching.slice(0, CHAPTER_PREVIEW);
+            truncated = true;
+          }
+          if (matching.length > 0) {
+            const text = matching.map(v => `${v.verse} ${cleanBollsText(v.text)}`).join(" ");
+            let label;
+            if (parsed.wholeChapter && !truncated) {
+              label = `${parsed.book} ${parsed.chapter}`;
+            } else if (parsed.wholeChapter) {
+              label = `${parsed.book} ${parsed.chapter}:1-${matching[matching.length - 1].verse}`;
+            } else {
+              label = `${parsed.book} ${parsed.chapter}:${parsed.verseStart}${parsed.verseEnd !== parsed.verseStart ? '-' + parsed.verseEnd : ''}`;
+            }
+            return {
+              reference: label,
+              text,
+              source: `bolls.life (${translation})`
+            };
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Bolls.life fetch failed, trying fallback:", e.message);
+    }
+  }
+
+  try {
+    let apiTrans = 'web';
+    if (translation.toLowerCase().includes('kjv')) apiTrans = 'kjv';
+    else if (translation.toLowerCase().includes('bbe')) apiTrans = 'bbe';
+
+    const apiUrl = `https://bible-api.com/${encodeURIComponent(reference)}?translation=${apiTrans}`;
+    const res = await fetch(apiUrl);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.text) {
+        return {
+          reference: data.reference,
+          text: data.text.trim(),
+          source: `bible-api.com (${data.translation_id || 'web'})`
+        };
+      }
+    }
+  } catch (e) {
+    console.warn("bible-api.com fetch failed:", e.message);
+  }
+
+  return null;
+}
+
+async function scanAndQueryRef(parsed, version, phrase) {
+  const BOOKS = 'Genesis|Gen|Exodus|Ex|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Joshua|Josh|Judges|Judg|Ruth|' +
+    '1\\s*Samuel|2\\s*Samuel|1\\s*Sam|2\\s*Sam|1\\s*Kings|2\\s*Kings|1\\s*Chronicles|2\\s*Chronicles|1\\s*Chr|2\\s*Chr|1\\s*Chron|2\\s*Chron|Ezra|Nehemiah|Neh|Esther|Esth|Job|' +
+    'Psalms?|Psa|Proverbs|Prov|Ecclesiastes|Eccl|Song\\s*of\\s*Solomon|Song\\s*of\\s*Songs?|Isaiah|Isa|Jeremiah|Jer|' +
+    'Lamentations|Lam|Ezekiel|Ezek|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Obad|Jonah|Micah|Mic|Nahum|Nah|Habakkuk|Hab|' +
+    'Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|' +
+    'Matthew|Matt|Mark|Luke|John|Acts|Romans|Rom|' +
+    '1\\s*Corinthians|2\\s*Corinthians|1\\s*Cor|2\\s*Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Colossians|Col|' +
+    '1\\s*Thessalonians|2\\s*Thessalonians|1\\s*Thess|2\\s*Thess|1\\s*Timothy|2\\s*Timothy|1\\s*Tim|2\\s*Tim|Titus|Philemon|Hebrews|Heb|James|Jas|' +
+    '1\\s*Peter|2\\s*Peter|3\\s*Peter|1\\s*Pet|2\\s*Pet|3\\s*Pet|1\\s*John|2\\s*John|3\\s*John|Jude|Revelation|Rev';
+
+  const scanRegex = new RegExp(`(?:(?:1|2|3|I|II|III)\\s*)?(?:${BOOKS})\\s+\\d+\\s*:\\s*\\d+(?:\\s*-\\s*\\d+)?`, 'i');
+  // Chapter without a verse — "Psalm 23". The lookahead stops it biting the
+  // "Psalm 23" out of "Psalm 23:1", which scanRegex already handles.
+  const chapterRegex = new RegExp(`(?:(?:1|2|3|I|II|III)\\s*)?(?:${BOOKS})\\s+\\d+(?!\\s*:)`, 'i');
+
+  const scanAll = (re) => {
+    for (const res of parsed) {
+      const titleMatch = re.exec(res.ref);
+      if (titleMatch) return titleMatch[0].trim();
+      const textMatch = re.exec(res.text);
+      if (textMatch) return textMatch[0].trim();
+    }
+    return null;
+  };
+
+  // A verse-level hit anywhere in the results beats a chapter-only one, so
+  // make a full pass for those before falling back to whole chapters.
+  let firstFoundRef = scanAll(scanRegex) || scanAll(chapterRegex);
+
+  if (firstFoundRef) {
+    try {
+      console.log(`[RENDERER] Scanned & found scripture reference inside search text: "${firstFoundRef}". Querying API...`);
+      const apiData = await fetchVerseText(firstFoundRef, version);
+      if (apiData) {
+        addCard({
+          ref: apiData.reference,
+          version: version,
+          query: phrase,
+          source: apiData.source,
+          verses: [{ ref: '', text: apiData.text }]
+        });
+        return true;
+      }
+    } catch (apiErr) {
+      console.warn(`[RENDERER] Autodetected reference background API query failed:`, apiErr);
+    }
+  }
+  return false;
+}
+
+async function doSearch(phrase) {
+  phrase = sanitizeSearchPhrase(phrase);
+  const version = versionSel.value;
+  const key     = phrase.toLowerCase() + '|' + version;
+  if (searched.has(key)) return;
+  searched.add(key);
+
+  setStatus('searching');
+  const skId = addSkeleton();
+  lastQEl.textContent   = `"${phrase}" · ${version}`;
+  searchChip.textContent = `"${phrase.slice(0, 45)}${phrase.length > 45 ? '…' : ''}"`;
+
+  const BOOKS = 'Genesis|Gen|Exodus|Ex|Leviticus|Lev|Numbers|Num|Deuteronomy|Deut|Joshua|Josh|Judges|Judg|Ruth|' +
+    '1\\s*Samuel|2\\s*Samuel|1\\s*Sam|2\\s*Sam|1\\s*Kings|2\\s*Kings|1\\s*Chronicles|2\\s*Chronicles|1\\s*Chr|2\\s*Chr|1\\s*Chron|2\\s*Chron|Ezra|Nehemiah|Neh|Esther|Esth|Job|' +
+    'Psalms?|Psa|Proverbs|Prov|Ecclesiastes|Eccl|Song\\s*of\\s*Solomon|Song\\s*of\\s*Songs?|Isaiah|Isa|Jeremiah|Jer|' +
+    'Lamentations|Lam|Ezekiel|Ezek|Daniel|Dan|Hosea|Hos|Joel|Amos|Obadiah|Obad|Jonah|Micah|Mic|Nahum|Nah|Habakkuk|Hab|' +
+    'Zephaniah|Zeph|Haggai|Hag|Zechariah|Zech|Malachi|Mal|' +
+    'Matthew|Matt|Mark|Luke|John|Acts|Romans|Rom|' +
+    '1\\s*Corinthians|2\\s*Corinthians|1\\s*Cor|2\\s*Cor|Galatians|Gal|Ephesians|Eph|Philippians|Phil|Colossians|Col|' +
+    '1\\s*Thessalonians|2\\s*Thessalonians|1\\s*Thess|2\\s*Thess|1\\s*Timothy|2\\s*Timothy|1\\s*Tim|2\\s*Tim|Titus|Philemon|Hebrews|Heb|James|Jas|' +
+    '1\\s*Peter|2\\s*Peter|3\\s*Peter|1\\s*Pet|2\\s*Pet|3\\s*Pet|1\\s*John|2\\s*John|3\\s*John|Jude|Revelation|Rev';
+  const refRegex = new RegExp(`^\\s*(?:(?:1|2|3|I|II|III)\\s*)?(?:${BOOKS})\\s+\\d+(?:\\s*:\\s*\\d+(?:\\s*-\\s*\\d+)?)?\\s*$`, 'i');
+
+  if (refRegex.test(phrase)) {
+    try {
+      console.log(`[RENDERER] Direct scripture reference detected: "${phrase}". Trying direct API...`);
+      const apiData = await fetchVerseText(phrase, version);
+      if (apiData) {
+        removeSkeleton(skId);
+        addCard({
+          ref: apiData.reference,
+          version: version,
+          query: phrase,
+          source: apiData.source,
+          verses: [{ ref: '', text: apiData.text }]
+        });
+        markChunk(phrase);
+        setStatus(isOn ? 'active' : 'idle');
+        return;
+      }
+    } catch (e) {
+      console.warn(`[RENDERER] Direct scripture API lookup failed for "${phrase}":`, e);
+    }
+  }
+
+  try {
+    // Invoke Google Search directly via the main process secure Node API
+    const html    = await window.api.googleSearch(phrase, version);
+    const parsed  = parseScripture(html);
+    console.log("DEBUG: doSearch parsed results count:", parsed.length, "results:", JSON.stringify(parsed));
+    removeSkeleton(skId);
+    if (parsed.length === 0) {
+      addCard({ ref: 'No result', version, query: phrase, source: 'google.com',
+        verses: [{ ref: '', text: 'No identifiable scripture found for this phrase. Try speaking a direct reference like "John 3:16".' }] });
+    } else {
+      // Scan and query direct reference in the background to show only the clean verse text
+      const found = await scanAndQueryRef(parsed, version, phrase);
+      if (!found) {
+        addCard({ ref: 'No result', version, query: phrase, source: 'google.com',
+          verses: [{ ref: '', text: 'No identifiable scripture found for this phrase. Try speaking a direct reference like "John 3:16".' }] });
+      }
+    }
+    markChunk(phrase);
+  } catch(err) {
+    console.warn("IPC googleSearch failed. Trying emergency CORS proxy fallback...", err);
+    try {
+      const q = `${phrase} ${version} (site:biblegateway.com OR site:biblehub.com OR site:blueletterbible.org)`;
+      const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(q)}`)}`;
+      const proxyRes = await fetch(fallbackUrl);
+      if (proxyRes.ok) {
+        const proxyData = await proxyRes.json();
+        const html = proxyData.contents;
+        const parsed = parseScripture(html);
+        if (parsed.length > 0) {
+          removeSkeleton(skId);
+          // Scan and query direct reference in the background to show only the clean verse text
+          const found = await scanAndQueryRef(parsed, version, phrase);
+          if (!found) {
+            addCard({ ref: 'No result', version, query: phrase, source: 'CORS Proxy',
+              verses: [{ ref: '', text: 'No identifiable scripture found for this phrase. Try speaking a direct reference like "John 3:16".' }] });
+          }
+          markChunk(phrase);
+          setStatus(isOn ? 'active' : 'idle');
+          return;
+        }
+      }
+    } catch (proxyErr) {
+      console.error("Emergency CORS proxy fallback also failed:", proxyErr);
+    }
+    removeSkeleton(skId);
+    console.error("IPC googleSearch failed:", err);
+    addCard({ ref: 'Search error', version, query: phrase, source: 'main process failed',
+      verses: [{ ref: '', text: `Google Search request failed: ${err.message}` }] });
+  }
+
+  setStatus(isOn ? 'active' : 'idle');
+}
+
+// Re-search a clicked transcript chunk
+// Re-search a clicked transcript chunk
+function reSearch(phrase) {
+  const key = phrase.toLowerCase() + '|' + versionSel.value;
+  searched.delete(key); // allow re-fetch
+  doSearch(phrase);
+}
+
+// ═══════════════════════════════
+//  CARDS
+// ═══════════════════════════════
+function openPassageLink(ref, version) {
+  const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=${encodeURIComponent(version)}`;
+  window.api.openExternal(url);
+}
+
+async function copyCardText(btn, ref, version) {
+  const cardBody = btn.closest('.card').querySelector('.card-verse').textContent.trim();
+  const fullVersionName = VERSION_FULL_NAMES[version] || version;
+  const textToCopy = `${ref}\n${fullVersionName}\n${cardBody}`;
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    showToast('Copied verse to clipboard!');
+  } catch(e) {
+    showToast('Failed to copy text: ' + e.message);
+  }
+}
+
+// ── Freeze-on-hover state ─────────────────
+let isHoveringResults = false;
+let pendingCards = [];
+const pendingBadgeEl = document.getElementById('pending-badge');
+const pendingCountEl = document.getElementById('pending-count');
+const pendingPluralEl = document.getElementById('pending-plural');
+
+function updatePendingBadge() {
+  const n = pendingCards.length;
+  if (n === 0) {
+    pendingBadgeEl.style.display = 'none';
+  } else {
+    pendingBadgeEl.style.display = 'flex';
+    pendingCountEl.textContent = n;
+    pendingPluralEl.textContent = n === 1 ? '' : 's';
+  }
+}
+
+function flushPendingCards(instant = false) {
+  if (pendingCards.length === 0) return;
+  const toFlush = [...pendingCards];
+  pendingCards = [];
+  updatePendingBadge();
+  if (instant) {
+    toFlush.forEach(fn => fn());
+  } else {
+    // stagger them slightly so cards don't all slam in at once
+    toFlush.forEach((fn, i) => setTimeout(fn, i * 80));
+  }
+}
+
+// Hook hover events on the results wrapper
+const resultsWrapperEl = document.getElementById('results-wrapper');
+resultsWrapperEl.addEventListener('mouseenter', () => {
+  isHoveringResults = true;
+});
+resultsWrapperEl.addEventListener('mouseleave', () => {
+  isHoveringResults = false;
+  flushPendingCards(false);
+});
+
+function insertCardNow(card) {
+  emptyEl.style.display = 'none';
+  card.classList.add('card-entering');
+  resultsEl.insertBefore(card, resultsEl.firstChild);
+  lucide.createIcons();
+  // keep max 15
+  const all = resultsEl.querySelectorAll('.card');
+  if (all.length > 15) all[all.length - 1].remove();
+}
+
+function addCard({ ref, version, query, source, verses }) {
+  const body = verses.map(v =>
+    v.ref ? `<p><mark>${escHtml(v.ref)}</mark> ${escHtml(v.text)}</p>`
+          : `<p>${escHtml(v.text)}</p>`
+  ).join('');
+
+  // Always track scriptures immediately, regardless of hover state
+  if (ref !== 'No result' && ref !== 'Search error') {
+    const key = `${ref} (${version})`;
+    if (!sermonScriptures.some(s => s.key === key)) {
+      const plainText = verses.map(v => v.text).join(' ');
+      sermonScriptures.push({
+        key, ref, version,
+        text: plainText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+    }
+  }
+
+  // Point the stack deck at this verse, whichever view is showing, so the
+  // deck is already correct if the user flips over to it.
+  if (ref !== 'No result' && ref !== 'Search error') {
+    setStackContext(ref, version);
+  }
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-ref" onclick="openPassageLink('${escHtml(ref)}', '${escHtml(version)}')" title="Open in Bible Gateway">${escHtml(ref)}</div>
+      <div class="card-meta" style="display:flex; align-items:center; gap:8px;">
+        <button class="header-btn" style="width:20px; height:20px; font-size:9px; border-radius:4px; display:flex; align-items:center; justify-content:center; padding:0; background:var(--surface2); border:1px solid var(--border2); color:var(--text2); cursor:pointer;" onclick="copyCardText(this, '${escHtml(ref)}', '${escHtml(version)}')" title="Copy Verse"><i data-lucide="copy" style="width:10px; height:10px;"></i></button>
+        <div class="card-ver">${escHtml(version)}</div>
+      </div>
+    </div>
+    <div class="card-body"><div class="card-verse">${body}</div></div>
+    <div class="card-query"><i data-lucide="search" style="width: 10px; height: 10px; margin-right: 4px; display: inline-block; vertical-align: middle;"></i>${escHtml(query)}</div>`;
+
+  if (isHoveringResults) {
+    // Queue the card — don't disturb reading
+    pendingCards.push(() => insertCardNow(card));
+    updatePendingBadge();
+  } else {
+    insertCardNow(card);
+  }
+}
+
+let skC = 0;
+function addSkeleton() {
+  const id = 'sk' + (++skC);
+  emptyEl.style.display = 'none';
+  const el = document.createElement('div');
+  el.className = 'skeleton'; el.id = id;
+  el.innerHTML = `
+    <div class="sk-head"><div class="sk-line" style="width:42%"></div></div>
+    <div class="sk-body">
+      <div class="sk-line"></div><div class="sk-line"></div>
+      <div class="sk-line"></div><div class="sk-line short"></div>
+    </div>`;
+  resultsEl.insertBefore(el, resultsEl.firstChild);
+  return id;
+}
+
+function removeSkeleton(id) { document.getElementById(id)?.remove(); }
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ═══════════════════════════════
+//  ORB TOGGLE (CHROME VOICE BRIDGE)
+// ═══════════════════════════════
+orbBtn.addEventListener('click', () => {
+  if (!isOn) {
+    document.getElementById('bridge-modal').style.display = 'flex';
+  } else {
+    isOn = false;
+    stopAudio();
+    orbBtn.classList.remove('on');
+    const orbIconOff = document.getElementById('orb-icon');
+    if (orbIconOff) { orbIconOff.setAttribute('data-lucide', 'mic-off'); lucide.createIcons(); }
+    orbHint.textContent = 'Tap to begin listening';
+    orbWrapEl.querySelectorAll('.ring').forEach(r => r.classList.remove('hot'));
+    waveEl.classList.remove('on');
+    setStatus('idle'); updateWC(0);
+    searchedWordCount = 0; finalText = ''; plainTranscript = ''; interimText = '';
+  }
+});
+
+//  CLEAR
+// ═══════════════════════════════
+clearBtn.addEventListener('click', () => {
+  resultsEl.innerHTML = ''; resultsEl.appendChild(emptyEl);
+  emptyEl.style.display = 'flex';
+  searched.clear();
+  searchChip.textContent = '—'; lastQEl.textContent = 'No search yet';
+  finalText = ''; plainTranscript = ''; searchedWordCount = 0; interimText = ''; updateWC(0);
+  sermonScriptures = [];
+  pendingCards = []; updatePendingBadge();
+  noteTitle.value = ''; notePreacher.value = ''; noteCustom.value = '';
+  transcriptEl.innerHTML = '<span class="t-interim">Awaiting voice input…</span>';
+});
+
+// ═══════════════════════════════
+//  TEXT SEARCH
+// ═══════════════════════════════
+function handleTextSearch() {
+  const text = searchInput.value.trim();
+  if (!text) return;
+  tabResults.click();
+  doSearch(text);
+  searchInput.value = '';
+  searchInput.focus();
+}
+
+searchBtnEl.addEventListener('click', handleTextSearch);
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleTextSearch();
+});
+
+// ═══════════════════════════════
+//  TOAST & VOICE BRIDGE HANDLERS
+// ═══════════════════════════════
+function showToast(msg) {
+  toastEl.textContent = msg; toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 4200);
+}
+
+document.getElementById('close-bridge-modal').addEventListener('click', () => {
+  document.getElementById('bridge-modal').style.display = 'none';
+});
+
+document.getElementById('launch-bridge-btn').addEventListener('click', () => {
+  window.api.openVoiceBridge();
+  startAudio();
+  waveEl.classList.add('on');
+});
+
+// ═══════════════════════════════
+//  TABS & PIN ALWAYS-ON-TOP
+// ═══════════════════════════════
+const TABS = [
+  [tabResults,    resultsTabContent],
+  [tabTranscript, transcriptTabContent],
+  [tabNotes,      notesTabContent],
+];
+
+TABS.forEach(([btn, pane]) => {
+  btn.addEventListener('click', () => {
+    TABS.forEach(([b, p]) => {
+      b.classList.toggle('active', b === btn);
+      p.classList.toggle('active', p === pane);
+    });
+  });
+});
+
+// Copy Sermon Summary Note
+// AI Summarize Sermon Notes — the one place AI is used. It runs after the
+// service on text already gathered; the live search path stays rule-based.
+btnAiNotes.addEventListener('click', async () => {
+  const title = noteTitle.value.trim() || 'Untitled Sermon';
+  const preacher = notePreacher.value.trim() || 'Unknown Preacher';
+  const transcriptText = transcriptEl.innerText.trim();
+  const customNotes = noteCustom.value.trim();
+  const scriptureList = sermonScriptures.length
+    ? sermonScriptures.map(s => `${s.ref} (${s.version}) — ${s.text}`).join('\n')
+    : '(none captured)';
+
+  if (!transcriptText && !customNotes && sermonScriptures.length === 0) {
+    showToast('No transcript, notes or scriptures to summarize yet!');
+    return;
+  }
+
+  const origText = btnAiNotes.innerHTML;
+  btnAiNotes.innerHTML = `<i data-lucide="loader" style="width:13px;height:13px;"></i> Generating...`;
+  btnAiNotes.disabled = true;
+  lucide.createIcons();
+
+  try {
+    const prompt = `You are helping organise notes taken during a church sermon.
+
+Sermon Title: ${title}
+Preacher: ${preacher}
+
+Scriptures referenced during the sermon:
+${scriptureList}
+
+Transcript:
+${transcriptText || '(no transcript captured)'}
+
+Listener's own notes:
+${customNotes || '(none)'}
+
+Write a clear, practical summary with exactly these sections:
+1. Main Theme (one sentence)
+2. Key Points (3-5 bullets)
+3. Scripture Focus (list the references above; do not invent any others)
+4. Application (1-2 sentences)
+
+Quote scripture only from the references listed above. Do not add verses that were not referenced. Plain text, no markdown code fences.`;
+
+    const summary = await window.api.generateAIContent(prompt);
+    noteCustom.value = (customNotes ? customNotes + '\n\n' : '') +
+                       '--- AI Sermon Summary ---\n' + summary.trim();
+    showToast('AI sermon summary added to notes');
+  } catch (err) {
+    showToast('AI Summary failed: ' + (err && err.message ? err.message : err));
+  } finally {
+    btnAiNotes.innerHTML = origText;
+    btnAiNotes.disabled = false;
+    lucide.createIcons();
+  }
+});
+
+btnCopyNotes.addEventListener('click', async () => {
+  const title = noteTitle.value.trim() || 'Untitled Sermon';
+  const preacher = notePreacher.value.trim() || 'Unknown Preacher';
+  const dateStr = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const custom = noteCustom.value.trim();
+
+  let md = `# Sermon: ${title}\n`;
+  md += `**Preacher:** ${preacher}\n`;
+  md += `**Date:** ${dateStr}\n\n`;
+  
+  if (custom) {
+    md += `## Notes\n${custom}\n\n`;
+  }
+
+  md += `## Captured Scriptures\n`;
+  if (sermonScriptures.length === 0) {
+    md += `*No scriptures captured yet.*\n`;
+  } else {
+    sermonScriptures.forEach(s => {
+      md += `*   **${s.ref} (${s.version})** [${s.timestamp}]\n    "${s.text}"\n`;
+    });
+  }
+
+  try {
+    await navigator.clipboard.writeText(md);
+    showToast('Copied sermon summary to clipboard!');
+  } catch(e) {
+    showToast('Failed to copy summary: ' + e.message);
+  }
+});
+
+// Export Sermon Notes to Markdown File
+btnExportNotes.addEventListener('click', () => {
+  const title = noteTitle.value.trim() || 'Sermon_Notes';
+  const preacher = notePreacher.value.trim() || 'Unknown_Preacher';
+  const dateStr = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const custom = noteCustom.value.trim();
+
+  let md = `# Sermon Notes: ${title}\n`;
+  md += `*   **Preacher:** ${preacher}\n`;
+  md += `*   **Date:** ${dateStr}\n\n`;
+  
+  if (custom) {
+    md += `## Sermon Takeaways\n${custom}\n\n`;
+  }
+
+  md += `## Captured Scripture References\n`;
+  if (sermonScriptures.length === 0) {
+    md += `*No scriptures captured during this sermon.*\n`;
+  } else {
+    sermonScriptures.forEach(s => {
+      md += `### ${s.ref} (${s.version})\n*Captured at ${s.timestamp}*\n\n> ${s.text}\n\n`;
+    });
+  }
+
+  const filename = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_notes.md`;
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${filename} successfully!`);
+});
+
+let isPinned = false;
+pinBtn.addEventListener('click', () => {
+  isPinned = !isPinned;
+  pinBtn.classList.toggle('pinned', isPinned);
+  window.api.setAlwaysOnTop(isPinned);
+  showToast(isPinned ? 'Always on top activated' : 'Always on top deactivated');
+});
+// ═══════════════════════════════
+//  CUSTOM WINDOW CONTROLS
+// ═══════════════════════════════
+document.getElementById('win-min-btn').addEventListener('click', () => {
+  window.api.minimizeWindow();
+});
+document.getElementById('win-max-btn').addEventListener('click', () => {
+  window.api.maximizeWindow();
+});
+document.getElementById('win-close-btn').addEventListener('click', () => {
+  window.api.closeWindow();
+});
+
+// ═══════════════════════════════
+//  STACK VIEW — VERSE CONTEXT DECK
+//  Shows the verse in hand with the one before and the one after,
+//  so a passage can be walked a verse at a time while it is read.
+// ═══════════════════════════════
+const stackDeckEl = document.getElementById('stack-deck');
+const chapterCache = new Map();
+let stackCtx = null;   // { book, chapter, version, verses, start, end }
+
+async function loadChapter(book, chapter, version) {
+  const key = version + '|' + book + '|' + chapter;
+  if (chapterCache.has(key)) return chapterCache.get(key);
+  try {
+    const url = `https://bolls.life/get-text/${version}/${encodeURIComponent(book)}/${chapter}/`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const raw = await res.json();
+    if (!Array.isArray(raw) || raw.length === 0) return null;
+    const verses = raw
+      .map(v => ({ verse: v.verse, text: cleanBollsText(v.text) }))
+      .sort((a, b) => a.verse - b.verse);
+    chapterCache.set(key, verses);
+    return verses;
+  } catch (e) {
+    console.warn('[STACK] chapter load failed:', e.message);
+    return null;
+  }
+}
+
+// Point the deck at a reference. Called for every resolved verse, so the deck
+// is already built if the user flips to stack view later.
+async function setStackContext(ref, version) {
+  const p = parseReference(ref);
+  if (!p) return;
+  const verses = await loadChapter(p.book, p.chapter, version);
+  if (!verses) return;
+  const start = p.wholeChapter ? verses[0].verse : p.verseStart;
+  const end   = p.wholeChapter ? verses[0].verse : p.verseEnd;
+  const moved = !stackCtx || stackCtx.book !== p.book || stackCtx.chapter !== p.chapter ||
+                stackCtx.start !== start || stackCtx.end !== end;
+  stackCtx = { book: p.book, chapter: p.chapter, version, verses, start, end };
+  if (moved) renderStackDeck('deck-in');
+}
+
+function stackRefLabel(start, end) {
+  return `${stackCtx.book} ${stackCtx.chapter}:${start}${end !== start ? '-' + end : ''}`;
+}
+
+function buildCtxCard(kind, start, end) {
+  const picked = stackCtx.verses.filter(v => v.verse >= start && v.verse <= end);
+  if (picked.length === 0) return null;
+  const label = stackRefLabel(start, end);
+  const card = document.createElement('div');
+  card.className = 'card ctx-card ctx-' + kind;
+  card.dataset.start = start;
+  card.dataset.end = end;
+
+  if (kind === 'active') {
+    const body = picked.map(v => `<p>${escHtml(v.verse + ' ' + v.text)}</p>`).join('');
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="card-ref" onclick="openPassageLink('${escHtml(label)}', '${escHtml(stackCtx.version)}')" title="Open in Bible Gateway">${escHtml(label)}</div>
+        <div class="card-meta" style="display:flex; align-items:center; gap:8px;">
+          <button class="header-btn" style="width:20px; height:20px; font-size:9px; border-radius:4px; display:flex; align-items:center; justify-content:center; padding:0; background:var(--surface2); border:1px solid var(--border2); color:var(--text2); cursor:pointer;" onclick="copyCardText(this, '${escHtml(label)}', '${escHtml(stackCtx.version)}')" title="Copy Verse"><i data-lucide="copy" style="width:10px; height:10px;"></i></button>
+          <div class="card-ver">${escHtml(stackCtx.version)}</div>
+        </div>
+      </div>
+      <div class="card-body"><div class="card-verse">${body}</div></div>`;
+  } else {
+    card.title = (kind === 'prev' ? 'Previous verse — ' : 'Next verse — ') + label;
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="card-ref">${escHtml(label)}</div>
+        <div class="card-meta" style="display:flex; align-items:center; gap:8px;">
+          <div class="card-ver">${escHtml(stackCtx.version)}</div>
+        </div>
+      </div>
+      <div class="card-body ctx-body"><span class="ctx-line">${escHtml(picked[0].text)}</span></div>`;
+  }
+  return card;
+}
+
+function renderStackDeck(anim) {
+  if (!stackCtx) return;
+  const first = stackCtx.verses[0].verse;
+  const last  = stackCtx.verses[stackCtx.verses.length - 1].verse;
+  stackDeckEl.innerHTML = '';
+
+  const prev = stackCtx.start > first ? buildCtxCard('prev', stackCtx.start - 1, stackCtx.start - 1) : null;
+  if (prev) stackDeckEl.appendChild(prev);
+  else stackDeckEl.appendChild(edgeLabel(`${stackCtx.book} ${stackCtx.chapter} — chapter start`));
+
+  stackDeckEl.appendChild(buildCtxCard('active', stackCtx.start, stackCtx.end));
+
+  const next = stackCtx.end < last ? buildCtxCard('next', stackCtx.end + 1, stackCtx.end + 1) : null;
+  if (next) stackDeckEl.appendChild(next);
+  else stackDeckEl.appendChild(edgeLabel(`${stackCtx.book} ${stackCtx.chapter} — chapter end`));
+
+  // Restart the animation: drop the old class, force a reflow, re-add.
+  stackDeckEl.classList.remove('deck-up', 'deck-down', 'deck-in');
+  if (anim) {
+    void stackDeckEl.offsetWidth;
+    stackDeckEl.classList.add(anim);
+  }
+
+  lucide.createIcons();
+}
+
+function edgeLabel(text) {
+  const d = document.createElement('div');
+  d.className = 'ctx-edge';
+  d.textContent = text;
+  return d;
+}
+
+// Click a neighbour to step the deck onto it.
+stackDeckEl.addEventListener('click', (e) => {
+  const card = e.target.closest('.ctx-card');
+  if (!card || card.classList.contains('ctx-active') || !stackCtx) return;
+  if (e.target.closest('button') || e.target.closest('.card-ref')) return;
+  const goingForward = card.classList.contains('ctx-next');
+  stackCtx.start = parseInt(card.dataset.start, 10);
+  stackCtx.end   = parseInt(card.dataset.end, 10);
+  renderStackDeck(goingForward ? 'deck-up' : 'deck-down');
+});
+
+// ═══════════════════════════════
+//  VIEW MODE — LIST / STACK
+// ═══════════════════════════════
+const viewModeBtn = document.getElementById('view-mode-btn');
+let viewMode = 'list';
+
+function applyViewMode(mode) {
+  viewMode = (mode === 'stack') ? 'stack' : 'list';
+  document.body.classList.toggle('mode-stack', viewMode === 'stack');
+  const icon = document.getElementById('view-mode-icon');
+  if (icon) {
+    icon.setAttribute('data-lucide', viewMode === 'stack' ? 'rows-3' : 'layers');
+    lucide.createIcons();
+  }
+  viewModeBtn.classList.toggle('pinned', viewMode === 'stack');
+  viewModeBtn.title = viewMode === 'stack' ? 'Switch to List view' : 'Switch to Stack view';
+  try { localStorage.setItem('viewMode', viewMode); } catch (e) {}
+  if (viewMode === 'stack' && stackCtx) renderStackDeck('deck-in');
+}
+
+viewModeBtn.addEventListener('click', () => {
+  applyViewMode(viewMode === 'stack' ? 'list' : 'stack');
+});
+
+let storedMode = 'list';
+try { storedMode = localStorage.getItem('viewMode') || 'list'; } catch (e) {}
+applyViewMode(storedMode);
+
+// ═══════════════════════════════
+//  COMPACT PIP CONTROLS
+// ═══════════════════════════════
+const sizeToggleBtn = document.getElementById('size-toggle-btn');
+const headerMicBtn = document.getElementById('header-mic-toggle-btn');
+const headerSearchInput = document.getElementById('header-search-input');
+
+let isCompactMode = false;
+sizeToggleBtn.addEventListener('click', () => {
+  isCompactMode = !isCompactMode;
+  document.body.classList.toggle('compact-mode', isCompactMode);
+  const sizeIcon = document.getElementById('size-toggle-icon');
+  if (sizeIcon) {
+    sizeIcon.setAttribute('data-lucide', isCompactMode ? 'maximize-2' : 'minimize-2');
+    lucide.createIcons();
+  }
+  sizeToggleBtn.title = isCompactMode ? 'Switch to Normal Size' : 'Switch to Compact Size';
+  window.api.toggleCompactSize(isCompactMode);
+});
+
+headerMicBtn.addEventListener('click', () => {
+  orbBtn.click(); // Reuse orb toggle logic
+});
+
+headerSearchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const text = headerSearchInput.value.trim();
+    if (!text) return;
+    tabResults.click();
+    doSearch(text);
+    headerSearchInput.value = '';
+    headerSearchInput.blur();
+  }
+});
+
+// Intercept Orb toggle state changes to sync with header PiP mic button
+const originalSetStatus = setStatus;
+setStatus = (mode) => {
+  originalSetStatus(mode);
+  if (mode === 'idle') {
+    headerMicBtn.classList.remove('active');
+  } else if (mode === 'active') {
+    headerMicBtn.classList.add('active');
+  }
+};
+
+// Initialize all Lucide Icons on startup
+lucide.createIcons();
+
+// Start pinned by default
+pinBtn.click();
+
+// ══════════════════════════════════════════════════════════════════
+//  AUTO-FOCUS SEARCH BAR ON WINDOW ACTIVATE & F5 SHORTCUT
+// ══════════════════════════════════════════════════════════════════
+function focusSearchBar(selectText = true) {
+  const isCompact = (headerSearchInput && (headerSearchInput.offsetParent !== null || isCompactMode || window.innerHeight <= 380));
+  const target = isCompact ? headerSearchInput : searchInput;
+  if (target) {
+    try {
+      target.focus();
+      if (selectText && target.value) {
+        target.select();
+      }
+    } catch (e) {
+      console.warn('Error focusing search bar:', e);
+    }
+  }
+}
+
+let isWindowActive = document.hasFocus();
+let wasInteractiveClick = false;
+
+function isInteractiveControl(el) {
+  if (!el || !el.closest) return false;
+  // Window control buttons (minimize, maximize, close)
+  if (el.closest('#win-close-btn, #win-min-btn, #win-max-btn')) return true;
+  // Interactive buttons, links, dropdowns
+  if (el.closest('button, a, select')) return true;
+  // Clickable scripture references, transcript chunks, pending badge
+  if (el.closest('.card-ref, .t-chunk, #pending-badge')) return true;
+  // Note fields (don't steal focus if user specifically clicked to edit sermon notes)
+  if (el.closest('input:not(#search-input):not(#header-search-input), textarea')) return true;
+  return false;
+}
+
+function handleWindowActivation(e) {
+  if (!isWindowActive) {
+    if (isInteractiveControl(e.target)) {
+      wasInteractiveClick = true;
+      isWindowActive = true;
+      return;
+    }
+
+    // User was outside this window and clicked it to focus and search
+    isWindowActive = true;
+    wasInteractiveClick = false;
+
+    // Prevent default blur if clicking background/divs
+    if (e.target !== searchInput && e.target !== headerSearchInput) {
+      e.preventDefault();
+    }
+
+    focusSearchBar(true);
+    setTimeout(() => focusSearchBar(true), 25);
+  }
+}
+
+function handleWindowGainFocus() {
+  if (!isWindowActive) {
+    isWindowActive = true;
+    setTimeout(() => {
+      if (!wasInteractiveClick) {
+        const activeEl = document.activeElement;
+        if (!isInteractiveControl(activeEl)) {
+          focusSearchBar(true);
+        }
+      }
+      wasInteractiveClick = false;
+    }, 40);
+  }
+}
+
+function handleWindowLoseFocus() {
+  isWindowActive = false;
+  wasInteractiveClick = false;
+}
+
+// Global mouse and focus listeners
+window.addEventListener('mousedown', handleWindowActivation, true);
+window.addEventListener('pointerdown', handleWindowActivation, true);
+window.addEventListener('focus', handleWindowGainFocus);
+window.addEventListener('blur', handleWindowLoseFocus);
+
+// F5 shortcut handler (instant search jump)
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'F5' || e.code === 'F5') {
+    e.preventDefault();
+    tabResults.click();
+    focusSearchBar(true);
+  }
+});
+
+// IPC listeners from Electron main process
+if (window.api) {
+  window.api.onWindowFocus?.(handleWindowGainFocus);
+  window.api.onWindowBlur?.(handleWindowLoseFocus);
+  window.api.onFocusSearch?.(() => {
+    tabResults.click();
+    focusSearchBar(true);
+  });
+}
+
+// Initial focus on application startup
+setTimeout(() => focusSearchBar(true), 120);
+setTimeout(() => {
+  if (typeof showToast === 'function') {
+    showToast('🕊️ BibleDove v1.0.2 successfully installed!');
+  }
+}, 800);
+
+// ══════════════════════════════════════════════════════════════════════════
+//  BIBLEDOVE AUTO-UPDATER CLIENT
+// ══════════════════════════════════════════════════════════════════════════
+const updateModal = document.getElementById('update-modal');
+const updateBtn = document.getElementById('update-btn');
+const appVersionBadge = document.getElementById('app-version-badge');
+const closeUpdateModal = document.getElementById('close-update-modal');
+const updateSettingsToggleBtn = document.getElementById('update-settings-toggle-btn');
+const actionUpdateBtn = document.getElementById('action-update-btn');
+const updateStatusDesc = document.getElementById('update-status-desc');
+const updateNotesBox = document.getElementById('update-notes-box');
+const updateProgressContainer = document.getElementById('update-progress-container');
+const updateProgressBar = document.getElementById('update-progress-bar');
+const updateProgressPct = document.getElementById('update-progress-pct');
+const updateProgressText = document.getElementById('update-progress-text');
+const updateSpeedText = document.getElementById('update-speed-text');
+const updateSettingsBox = document.getElementById('update-settings-box');
+const updateRepoInput = document.getElementById('update-repo-input');
+const updateAutoCheck = document.getElementById('update-auto-check');
+const updateModalTitle = document.getElementById('update-modal-title');
+
+let currentAppVersion = '1.0.0';
+let currentUpdateInfo = null;
+let updateState = 'idle'; // idle | checking | available | not-available | downloading | downloaded | error
+
+async function initAutoUpdater() {
+  if (!window.api) return;
+
+  try {
+    currentAppVersion = (await window.api.getAppVersion?.()) || '1.0.0';
+    if (appVersionBadge) {
+      const sp = appVersionBadge.querySelector('span');
+      if (sp) sp.textContent = `BibleDove v${currentAppVersion}`;
+    }
+    const settings = (await window.api.getUpdateSettings?.()) || {};
+    if (updateRepoInput && settings.githubRepo) updateRepoInput.value = settings.githubRepo;
+    if (updateAutoCheck) updateAutoCheck.checked = settings.checkOnStartup !== false;
+  } catch (err) {
+    console.warn('Failed to load updater settings:', err);
+  }
+
+  // Listen to update status events from main
+  window.api.onUpdateStatus?.((data) => {
+    handleUpdateStatus(data);
+  });
+}
+
+function handleUpdateStatus(data) {
+  console.log('[UPDATER UI] Status:', data);
+  if (!data) return;
+
+  if (data.status === 'checking') {
+    updateState = 'checking';
+    updateModalTitle.textContent = 'Checking for Updates';
+    updateStatusDesc.innerHTML = `<span style="color:var(--gold);">Querying release servers...</span>`;
+    updateNotesBox.style.display = 'none';
+    updateProgressContainer.style.display = 'none';
+    actionUpdateBtn.disabled = true;
+    actionUpdateBtn.textContent = 'Checking...';
+    if (data.isManual) updateModal.style.display = 'flex';
+  } else if (data.status === 'available') {
+    updateState = 'available';
+    currentUpdateInfo = data;
+    updateModalTitle.textContent = `New Version Available: v${data.latestVersion}`;
+    updateStatusDesc.innerHTML = `A new release of <strong>BibleDove</strong> is ready.<br><span style="font-size:11.5px; color:var(--text-dim);">Current: v${data.currentVersion} → Latest: v${data.latestVersion}</span>`;
+    
+    if (data.notes) {
+      updateNotesBox.style.display = 'block';
+      updateNotesBox.innerHTML = `<strong>What's New:</strong><br>${escapeHtml(data.notes).replace(/\n/g, '<br>')}`;
+    } else {
+      updateNotesBox.style.display = 'none';
+    }
+
+    updateProgressContainer.style.display = 'none';
+    actionUpdateBtn.disabled = false;
+    actionUpdateBtn.textContent = 'Download & Update';
+    if (updateBtn) updateBtn.classList.add('update-available');
+    updateModal.style.display = 'flex';
+  } else if (data.status === 'not-available') {
+    updateState = 'not-available';
+    updateModalTitle.textContent = 'BibleDove is Up-to-Date';
+    updateStatusDesc.innerHTML = `You are running the latest version of <strong>BibleDove (v${data.currentVersion})</strong>.`;
+    updateNotesBox.style.display = 'none';
+    updateProgressContainer.style.display = 'none';
+    actionUpdateBtn.disabled = false;
+    actionUpdateBtn.textContent = 'Check Again';
+    if (updateBtn) updateBtn.classList.remove('update-available');
+    if (data.isManual) {
+      updateModal.style.display = 'flex';
+    }
+  } else if (data.status === 'downloading') {
+    updateState = 'downloading';
+    updateModalTitle.textContent = 'Downloading Update';
+    updateStatusDesc.innerHTML = `Downloading latest BibleDove installer...`;
+    updateProgressContainer.style.display = 'block';
+    updateProgressBar.style.width = `${data.percent}%`;
+    updateProgressPct.textContent = `${data.percent}%`;
+    
+    const recMB = (data.receivedBytes / (1024 * 1024)).toFixed(1);
+    const totMB = data.totalBytes ? (data.totalBytes / (1024 * 1024)).toFixed(1) : '?';
+    updateProgressText.textContent = `${recMB} MB / ${totMB} MB`;
+
+    if (data.speed) {
+      const speedMB = (data.speed / (1024 * 1024)).toFixed(1);
+      updateSpeedText.textContent = `${speedMB} MB/s`;
+    }
+    actionUpdateBtn.disabled = true;
+    actionUpdateBtn.textContent = 'Downloading...';
+    updateModal.style.display = 'flex';
+  } else if (data.status === 'downloaded') {
+    updateState = 'downloaded';
+    updateModalTitle.textContent = 'Update Ready to Install';
+    updateStatusDesc.innerHTML = `BibleDove has successfully downloaded the update.<br>Restart now to install automatically.`;
+    updateProgressContainer.style.display = 'none';
+    actionUpdateBtn.disabled = false;
+    actionUpdateBtn.textContent = 'Restart & Install';
+    updateModal.style.display = 'flex';
+  } else if (data.status === 'error') {
+    updateState = 'error';
+    updateModalTitle.textContent = 'Update Notice';
+    updateStatusDesc.innerHTML = `<span style="color:#f87171;">${data.error || 'Failed to check for updates.'}</span>`;
+    updateProgressContainer.style.display = 'none';
+    actionUpdateBtn.disabled = false;
+    actionUpdateBtn.textContent = 'Try Again';
+    if (data.isManual) updateModal.style.display = 'flex';
+  }
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (m) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[m]);
+}
+
+if (updateBtn) {
+  updateBtn.addEventListener('click', () => {
+    updateModal.style.display = 'flex';
+    window.api?.checkForUpdates?.(true);
+  });
+}
+
+if (appVersionBadge) {
+  appVersionBadge.addEventListener('click', () => {
+    updateModal.style.display = 'flex';
+    window.api?.checkForUpdates?.(true);
+  });
+}
+
+if (closeUpdateModal) {
+  closeUpdateModal.addEventListener('click', () => {
+    updateModal.style.display = 'none';
+  });
+}
+
+if (updateSettingsToggleBtn) {
+  updateSettingsToggleBtn.addEventListener('click', () => {
+    const isShown = updateSettingsBox.style.display === 'block';
+    updateSettingsBox.style.display = isShown ? 'none' : 'block';
+    if (isShown) {
+      window.api?.saveUpdateSettings?.({
+        githubRepo: updateRepoInput.value.trim(),
+        checkOnStartup: updateAutoCheck.checked
+      });
+      showToast('Update settings saved');
+    }
+  });
+}
+
+if (actionUpdateBtn) {
+  actionUpdateBtn.addEventListener('click', () => {
+    if (updateState === 'available' && currentUpdateInfo?.downloadUrl) {
+      window.api?.downloadUpdate?.(currentUpdateInfo.downloadUrl);
+    } else if (updateState === 'downloaded') {
+      window.api?.installUpdate?.(true);
+    } else {
+      window.api?.checkForUpdates?.(true);
+    }
+  });
+}
+
+// Initialize updater after startup
+setTimeout(initAutoUpdater, 250);
+
+</script>
+</body>
+</html>

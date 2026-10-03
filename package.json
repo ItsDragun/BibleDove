@@ -1,0 +1,72 @@
+{
+  "name": "bibledove",
+  "version": "1.0.2",
+  "description": "BibleDove Voice Search Application",
+  "author": {
+    "name": "Lucid Tech.",
+    "email": "",
+    "url": ""
+  },
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "node build-installer.js",
+    "pack": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.lucidtech.bibledove",
+    "productName": "BibleDove",
+    "copyright": "© 2026 Lucid Tech.",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "logo.png",
+      "publisherName": "Lucid Tech.",
+      "legalTrademarks": "Lucid Tech."
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "logo.png",
+      "uninstallerIcon": "logo.png",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BibleDove",
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "displayLanguageSelector": false,
+      "installerLanguages": [
+        "en_US"
+      ],
+      "multiLanguageInstaller": false
+    },
+    "files": [
+      "**/*",
+      "!dist/**/*",
+      "!ddg_output.html",
+      "!yahoo_output.html",
+      "!ask_output.html",
+      "!scratch_ddg.js",
+      "!test-packager.js",
+      "!build-installer.js"
+    ],
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2",
+    "jimp": "^1.6.1",
+    "jsdom": "^29.1.1",
+    "png-to-ico": "^2.1.8"
+  }
+}
