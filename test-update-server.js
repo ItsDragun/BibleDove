@@ -9,6 +9,8 @@ const PORT = 3001;
 const distDir = path.join(__dirname, 'dist');
 
 function getLatestExe() {
+  const v103 = path.join(distDir, 'BibleDove Setup 1.0.3.exe');
+  if (fs.existsSync(v103)) return { file: v103, version: '1.0.3' };
   const v102 = path.join(distDir, 'BibleDove Setup 1.0.2.exe');
   if (fs.existsSync(v102)) return { file: v102, version: '1.0.2' };
   const v101 = path.join(distDir, 'BibleDove Setup 1.0.1.exe');
