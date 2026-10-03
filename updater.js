@@ -129,6 +129,37 @@ class AutoUpdater {
   }
 
   /**
+   * Resolve latest release tag directly via GitHub web redirect (Zero rate limits)
+   */
+  getLatestReleaseViaWebRedirect(repo) {
+    return new Promise((resolve, reject) => {
+      const urlStr = `https://github.com/${repo}/releases/latest`;
+      const req = https.get(urlStr, {
+        headers: { 'User-Agent': 'BibleDove' }
+      }, (res) => {
+        if (res.statusCode === 302 && res.headers.location) {
+          const loc = res.headers.location;
+          const match = loc.match(/\/tag\/([^/?#]+)/);
+          if (match && match[1]) {
+            const tag = match[1];
+            const version = tag.replace(/^v/i, '');
+            const downloadUrl = `https://github.com/${repo}/releases/download/${tag}/BibleDove.Setup.${version}.exe`;
+            return resolve({
+              version,
+              notes: `BibleDove release ${tag}`,
+              downloadUrl,
+              releaseDate: new Date().toISOString()
+            });
+          }
+        }
+        reject(new Error(`Web redirect returned HTTP ${res.statusCode}`));
+      });
+      req.on('error', reject);
+      req.setTimeout(8000, () => req.destroy(new Error('Redirect request timed out')));
+    });
+  }
+
+  /**
    * Check for updates using GitHub Releases or Custom Feed
    */
   async checkForUpdates(isManual = false) {
@@ -155,45 +186,33 @@ class AutoUpdater {
         const repo = this.settings.githubRepo || 'ItsDragun/BibleDove';
         const cdnUrl = `https://raw.githubusercontent.com/${repo}/master/update.json`;
 
-        // Step 1: Query GitHub raw CDN first (fast, CDN cached, zero API rate limits)
+        // Step 1: Query GitHub web redirect (Zero rate limits, instant)
         try {
-          console.log(`[UPDATER] Querying GitHub raw CDN manifest: ${cdnUrl}`);
-          const raw = await this.fetchUrl(cdnUrl);
-          const json = JSON.parse(raw);
-          if (json && json.version) {
-            updateData = {
-              version: json.version,
-              notes: json.notes || 'No release notes provided.',
-              downloadUrl: json.downloadUrl || json.url,
-              releaseDate: json.releaseDate || new Date().toISOString()
-            };
+          console.log(`[UPDATER] Querying GitHub latest release redirect...`);
+          const redirectData = await this.getLatestReleaseViaWebRedirect(repo);
+          if (redirectData && redirectData.version) {
+            updateData = redirectData;
           }
-        } catch (cdnErr) {
-          console.warn('[UPDATER] Raw CDN manifest lookup failed, falling back to GitHub API:', cdnErr.message);
+        } catch (webErr) {
+          console.warn('[UPDATER] Web redirect failed, trying raw CDN:', webErr.message);
         }
 
-        // Step 2: Fallback to GitHub REST API if CDN manifest was unavailable
+        // Step 2: Query GitHub raw CDN manifest (zero rate limits)
         if (!updateData) {
-          const ghUrl = `https://api.github.com/repos/${repo}/releases/latest`;
-          console.log(`[UPDATER] Querying GitHub Releases API: ${ghUrl}`);
           try {
-            const raw = await this.fetchUrl(ghUrl);
-            const release = JSON.parse(raw);
-
-            const exeAsset = (release.assets || []).find(
-              (a) => a.name.toLowerCase().endsWith('.exe') && !a.name.toLowerCase().includes('blockmap')
-            );
-
-            updateData = {
-              version: release.tag_name ? release.tag_name.replace(/^v/i, '') : '0.0.0',
-              notes: release.body || 'No release notes provided.',
-              downloadUrl: exeAsset ? exeAsset.browser_download_url : null,
-              releaseDate: release.published_at || new Date().toISOString(),
-              assetName: exeAsset ? exeAsset.name : null
-            };
-          } catch (ghErr) {
-            console.warn('[UPDATER] GitHub API release lookup failed:', ghErr.message);
-            throw new Error(`Could not connect to update server (${ghErr.message}). Please check your internet connection.`);
+            console.log(`[UPDATER] Querying GitHub raw CDN manifest: ${cdnUrl}`);
+            const raw = await this.fetchUrl(cdnUrl);
+            const json = JSON.parse(raw);
+            if (json && json.version) {
+              updateData = {
+                version: json.version,
+                notes: json.notes || 'No release notes provided.',
+                downloadUrl: json.downloadUrl || json.url,
+                releaseDate: json.releaseDate || new Date().toISOString()
+              };
+            }
+          } catch (cdnErr) {
+            console.warn('[UPDATER] Raw CDN manifest lookup failed:', cdnErr.message);
           }
         }
       }
@@ -383,9 +402,11 @@ class AutoUpdater {
     console.log(`[UPDATER] Launching update runner to install and restart ${appExe}...`);
 
     const batContent = `@echo off
+timeout /t 2 /nobreak >nul
+taskkill /F /IM BibleDove.exe >nul 2>&1
 timeout /t 1 /nobreak >nul
 start /wait "" "${installer}" /S
-timeout /t 1 /nobreak >nul
+timeout /t 2 /nobreak >nul
 start "" "${appExe}"
 del "%~f0"
 `;
