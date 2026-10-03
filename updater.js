@@ -358,19 +358,31 @@ class AutoUpdater {
       return;
     }
 
-    console.log(`[UPDATER] Launching installer: ${this.downloadedFilePath} (silent=${silent})`);
+    const appExe = process.execPath;
+    const installer = this.downloadedFilePath;
+    const runnerScript = path.join(os.tmpdir(), 'bibledove-update-runner.bat');
 
-    // NSIS silent flag is /S (case-sensitive)
-    const args = silent ? ['/S'] : [];
+    console.log(`[UPDATER] Launching update runner to install and restart ${appExe}...`);
+
+    const batContent = `@echo off
+timeout /t 1 /nobreak >nul
+start /wait "" "${installer}" /S
+timeout /t 1 /nobreak >nul
+start "" "${appExe}"
+del "%~f0"
+`;
 
     try {
-      const child = spawn(this.downloadedFilePath, args, {
+      fs.writeFileSync(runnerScript, batContent, 'utf8');
+
+      const child = spawn('cmd.exe', ['/c', runnerScript], {
         detached: true,
-        stdio: 'ignore'
+        stdio: 'ignore',
+        windowsHide: true
       });
       child.unref();
 
-      // Gracefully shut down the current app process
+      // Gracefully shut down current app process
       setTimeout(() => {
         if (app) {
           app.isQuitting = true;
@@ -378,9 +390,9 @@ class AutoUpdater {
         } else {
           process.exit(0);
         }
-      }, 600);
+      }, 500);
     } catch (err) {
-      console.error('[UPDATER] Failed to launch installer:', err);
+      console.error('[UPDATER] Failed to launch update runner:', err);
       this.send('update-status', { status: 'error', error: `Failed to launch installer: ${err.message}` });
     }
   }
