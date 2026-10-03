@@ -239,19 +239,8 @@
       <div id="update-speed-text" style="font-size: 10.5px; color: var(--text-dim); margin-top: 6px; text-align: right;"></div>
     </div>
 
-    <!-- Settings box -->
-    <div id="update-settings-box" style="display: none; text-align: left; background: rgba(14,10,28,0.7); border: 1px solid var(--border2); border-radius: 9px; padding: 14px; margin: 12px 0;">
-      <div style="font-size: 10.5px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Update Channel / GitHub Repo</div>
-      <input type="text" id="update-repo-input" placeholder="LucidTech/BibleDove" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; font-size: 12px; color: #ede5d0; box-sizing: border-box; margin-bottom: 10px; outline: none;" />
-      <label style="display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-dim); cursor: pointer;">
-        <input type="checkbox" id="update-auto-check" checked style="accent-color: var(--gold);" />
-        <span>Check for updates automatically on launch</span>
-      </label>
-    </div>
-
     <div class="modal-actions" id="update-modal-actions">
       <button id="close-update-modal" class="modal-btn modal-btn--ghost">Close</button>
-      <button id="update-settings-toggle-btn" class="modal-btn modal-btn--ghost" title="Update Settings"><i data-lucide="settings" style="width: 13px; height: 13px;"></i></button>
       <button id="action-update-btn" class="modal-btn modal-btn--primary">Check Now</button>
     </div>
   </div>
@@ -2130,19 +2119,6 @@ if (closeUpdateModal) {
   });
 }
 
-if (updateSettingsToggleBtn) {
-  updateSettingsToggleBtn.addEventListener('click', () => {
-    const isShown = updateSettingsBox.style.display === 'block';
-    updateSettingsBox.style.display = isShown ? 'none' : 'block';
-    if (isShown) {
-      window.api?.saveUpdateSettings?.({
-        githubRepo: updateRepoInput.value.trim(),
-        checkOnStartup: updateAutoCheck.checked
-      });
-      showToast('Update settings saved');
-    }
-  });
-}
 
 if (actionUpdateBtn) {
   actionUpdateBtn.addEventListener('click', () => {

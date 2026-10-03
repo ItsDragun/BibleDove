@@ -37,9 +37,9 @@ class AutoUpdater {
     const defaults = {
       checkOnStartup: true,
       autoInstall: false,
-      feedType: 'github', // 'github' or 'custom'
-      githubRepo: 'LucidTech/BibleDove',
-      customUrl: 'https://raw.githubusercontent.com/LucidTech/BibleDove/main/update.json'
+      feedType: 'github',
+      githubRepo: 'ItsDragun/BibleDove',
+      customUrl: 'https://raw.githubusercontent.com/ItsDragun/BibleDove/main/update.json'
     };
 
     try {
@@ -176,7 +176,7 @@ class AutoUpdater {
         } catch (ghErr) {
           // If GitHub repo doesn't exist yet or rate limit, check custom manifest fallback if set
           console.warn('[UPDATER] GitHub release lookup failed:', ghErr.message);
-          throw new Error(`Could not query GitHub releases (${ghErr.message}). You can also configure a custom update URL in settings.`);
+          throw new Error(`Could not connect to update server (${ghErr.message}). Please check your internet connection.`);
         }
       }
 
