@@ -152,31 +152,49 @@ class AutoUpdater {
           releaseDate: json.releaseDate || new Date().toISOString()
         };
       } else {
-        // Default: GitHub Releases API
-        const repo = this.settings.githubRepo || 'LucidTech/BibleDove';
-        const ghUrl = `https://api.github.com/repos/${repo}/releases/latest`;
-        console.log(`[UPDATER] Querying GitHub Releases: ${ghUrl}`);
-        
+        const repo = this.settings.githubRepo || 'ItsDragun/BibleDove';
+        const cdnUrl = `https://raw.githubusercontent.com/${repo}/master/update.json`;
+
+        // Step 1: Query GitHub raw CDN first (fast, CDN cached, zero API rate limits)
         try {
-          const raw = await this.fetchUrl(ghUrl);
-          const release = JSON.parse(raw);
+          console.log(`[UPDATER] Querying GitHub raw CDN manifest: ${cdnUrl}`);
+          const raw = await this.fetchUrl(cdnUrl);
+          const json = JSON.parse(raw);
+          if (json && json.version) {
+            updateData = {
+              version: json.version,
+              notes: json.notes || 'No release notes provided.',
+              downloadUrl: json.downloadUrl || json.url,
+              releaseDate: json.releaseDate || new Date().toISOString()
+            };
+          }
+        } catch (cdnErr) {
+          console.warn('[UPDATER] Raw CDN manifest lookup failed, falling back to GitHub API:', cdnErr.message);
+        }
 
-          // Find the Windows installer (.exe)
-          const exeAsset = (release.assets || []).find(
-            (a) => a.name.toLowerCase().endsWith('.exe') && !a.name.toLowerCase().includes('blockmap')
-          );
+        // Step 2: Fallback to GitHub REST API if CDN manifest was unavailable
+        if (!updateData) {
+          const ghUrl = `https://api.github.com/repos/${repo}/releases/latest`;
+          console.log(`[UPDATER] Querying GitHub Releases API: ${ghUrl}`);
+          try {
+            const raw = await this.fetchUrl(ghUrl);
+            const release = JSON.parse(raw);
 
-          updateData = {
-            version: release.tag_name ? release.tag_name.replace(/^v/i, '') : '0.0.0',
-            notes: release.body || 'No release notes provided.',
-            downloadUrl: exeAsset ? exeAsset.browser_download_url : null,
-            releaseDate: release.published_at || new Date().toISOString(),
-            assetName: exeAsset ? exeAsset.name : null
-          };
-        } catch (ghErr) {
-          // If GitHub repo doesn't exist yet or rate limit, check custom manifest fallback if set
-          console.warn('[UPDATER] GitHub release lookup failed:', ghErr.message);
-          throw new Error(`Could not connect to update server (${ghErr.message}). Please check your internet connection.`);
+            const exeAsset = (release.assets || []).find(
+              (a) => a.name.toLowerCase().endsWith('.exe') && !a.name.toLowerCase().includes('blockmap')
+            );
+
+            updateData = {
+              version: release.tag_name ? release.tag_name.replace(/^v/i, '') : '0.0.0',
+              notes: release.body || 'No release notes provided.',
+              downloadUrl: exeAsset ? exeAsset.browser_download_url : null,
+              releaseDate: release.published_at || new Date().toISOString(),
+              assetName: exeAsset ? exeAsset.name : null
+            };
+          } catch (ghErr) {
+            console.warn('[UPDATER] GitHub API release lookup failed:', ghErr.message);
+            throw new Error(`Could not connect to update server (${ghErr.message}). Please check your internet connection.`);
+          }
         }
       }
 
